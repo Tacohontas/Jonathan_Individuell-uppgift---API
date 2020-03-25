@@ -7,16 +7,12 @@ class User{
     private $username;
     private $token_validity_time = 15; // Minutes
 
-    public $test = "inifrån user";
-
-
-
     public function __construct($datebase_handler_IN)
     {
         $this->database_handler = $datebase_handler_IN;
     }
 
 
-    
+
 
 }
