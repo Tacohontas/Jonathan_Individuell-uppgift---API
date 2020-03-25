@@ -124,36 +124,132 @@ class User
 
             if ($execSuccess === true) {
 
+                // Get Id from last inserted value in DB. (Our inserted user)
                 $last_inserted_id = $this->database_handler->lastInsertId();
-                
-                $return = $this->getUser($last_inserted_id);
+
+                // Fetch user with our id.
+                $return = $this->getUser("Id", $last_inserted_id);
+
+                // Return a confirm message
                 $message = "{$return['Role']} '{$return['Username']}' inserted to DB successfully";
                 return $message;
             }
         }
     }
 
-    private function getUser($userId_IN)
+    public function getUser($column, $value, $column2 = false, $value2 = false)
     {
-        $query_string = "SELECT Users.Id, Username, Email, Date_Created, Name AS Role FROM Users JOIN Roles ON Roles_Id = Roles.Id WHERE Users.Id = :userId_IN";
+
+        /*
+
+        Column = which column to match with value
+        Value  = which value match with column
+
+        Example:
+        getUser(Username, "Janne Ball") will return a User with username "Janne Ball". 
+
+         */
+
+        // Init twoColumns
+        $twoColumns = false;
+
+        $query_string = "SELECT Users.Id, Username, Email, Date_Created, Name AS Role FROM Users JOIN Roles ON Roles_Id = Roles.Id ";
+
+        switch ($column) {
+
+            case "Id":
+                $query_string .= "WHERE Users.Id = :value ";
+                break;
+
+            case "Username":
+                $query_string .= "WHERE Username = :value ";
+                break;
+
+            case "Email":
+                $query_string .= "WHERE Email = :value ";
+                break;
+
+            case "Date_Created":
+                $query_string .= "WHERE Date_Created = :value ";
+                break;
+            default:
+                $errorMessage = "Second column is not valid";
+                $errorLocation = "getUser() in Users.php";
+                return $this->errorHandler($errorMessage, $errorLocation);
+        };
+
+        // If we have two columns to match:
+        if ($column2 !== false && $value2 !== false) {
+            $twoColumns = true;
+            switch ($column2) {
+
+                case "Id":
+                    $query_string .= "AND Users.Id = :value2";
+                    break;
+
+                case "Username":
+                    $query_string .= "AND Username = :value2";
+                    break;
+
+                case "Password":
+                    $query_string .= "AND Password = :value2";
+                    break;
+
+                case "Email":
+                    $query_string .= "AND Email = :value2";
+                    break;
+
+                case "Date_Created":
+                    $query_string .= "AND Date_Created = :value2";
+                    break;
+                default:
+                    $errorMessage = "Second column is not valid";
+                    $errorLocation = "getUser() in Users.php";
+                    return $this->errorHandler($errorMessage, $errorLocation);
+            };
+        }
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
+
         if ($statementHandler !== false) {
-            $statementHandler->bindParam(":userId_IN", $userId_IN);
+
+            $statementHandler->bindParam(":value", $value);
+
+            if ($twoColumns == true) { // If we have two columns to match:
+                $statementHandler->bindParam(":value2", $value2);
+            }
+
             $execSuccess = $statementHandler->execute();
 
             if ($execSuccess === true) {
 
                 $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
 
-                // Kolla ifall resultatet inte är tomt
-                if(!empty($result)){
+                // If our result isn't empty = we've got a match!
+                if (!empty($result)) {
                     return $result;
+                } else {
+                    $errorMessage = "No match in DB";
+                    $errorLocation = "getUser() in Users.php";
                 }
+            } else {
+                $errorMessage = "Execute failed";
+                $errorLocation = "getUser() in Users.php";
             }
-
+        } else {
+            $errorMessage = "Statementhandler failed";
+            $errorLocation = "getUser() in Users.php";
         }
+
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    public function loginUser($username_IN, $password_IN)
+    {
+
+        // $query_string = "SELECT"
+
     }
 
     private function errorHandler($message_IN, $errorLocation_IN)
