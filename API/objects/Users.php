@@ -259,13 +259,10 @@ class User
         $return = $this->getUser("Username", $username_IN, "Password", $encryptedPassword);
         if ($return == true) {
             // Login success
-
-            // check token & update?
-            // $this->$getToken();
-
-
+            // Return token
+            return $this->getToken($return['Id'], $return['Username']);
         } else {
-            echo "fel användarnamn/lösen";
+            return "Invalid username/password.";
         }
     }
 
@@ -274,14 +271,14 @@ class User
         // If token exist and is valid, then checkToken() returns an updated token
         // If token exist and isn't valid, then checkToken() returns "deleted"
         // If token doesn't exist, then checkToken returns FALSE
-       
+
         if ($this->checkToken($userId_IN) == "deleted") {
             echo "token exist but isn't valid, creating new token and deletes the old one";
             echo "<br>";
             return $this->createToken($userId_IN, $username_IN);
         }
 
-        if ($this->checkToken($userId_IN) == "updated"){
+        if ($this->checkToken($userId_IN) == "updated") {
             echo "token exist and is valid, then checkToken() returns an updated token";
             echo "<br>";
             return $this->token;
@@ -297,6 +294,15 @@ class User
 
     public function checkToken($userId_IN)
     {
+        /* 
+
+        If token:
+        exist and is valid      ->   checkToken() returns an updated token
+        exist and isn't validd  ->   checkToken() returns "deleted"
+        doesn't exist           ->   checkToken returns FALSE
+
+        */
+
         // Check if token is active
         $query_string = "SELECT Date_Updated, Token FROM Tokens WHERE Users_Id = :userId_IN";
 
@@ -320,8 +326,10 @@ class User
 
                     if ($interval < $this->token_validity_time) {
                         // Update token 
-                        return $this->validateToken($result['Token'], 
-                        $current_timestamp);
+                        return $this->validateToken(
+                            $result['Token'],
+                            $current_timestamp
+                        );
                     } else {
                         // Token is not active
                         return $this->deleteToken($userId_IN);

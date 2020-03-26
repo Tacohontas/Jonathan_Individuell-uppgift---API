@@ -2,8 +2,8 @@
 include("../../objects/Users.php");
 
 // test_data
-$_POST['username'] = "Test";
-$_POST['password'] = "password";
+// $_POST['username'] = "Test";
+// $_POST['password'] = "password";
 
 
 // Init errors
@@ -32,6 +32,4 @@ if($error == true){
 // Add user to DB and return a message.
 $user_handler = new User($dbh);
 
-echo $user_handler->getToken(1, "Admin");
-
-// echo $user_handler->loginUser($_POST['username'], $_POST['password']);
+echo $user_handler->loginUser($_POST['username'], $_POST['password']);
