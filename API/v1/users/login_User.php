@@ -31,5 +31,4 @@ if($error == true){
 
 // Add user to DB and return a message.
 $user_handler = new User($dbh);
-
 echo $user_handler->loginUser($_POST['username'], $_POST['password']);

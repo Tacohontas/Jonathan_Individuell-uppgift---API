@@ -5,7 +5,6 @@ include("../../config/database_handler.php");
 class User
 {
     private $database_handler;
-    private $token;
     private $token_validity_time = 15; // Minutes
 
     public function __construct($datebase_handler_IN)
@@ -259,98 +258,17 @@ class User
         $return = $this->getUser("Username", $username_IN, "Password", $encryptedPassword);
         if ($return == true) {
             // Login success
-            // Return token
+            // Return token through getToken()
             return $this->getToken($return['Id'], $return['Username']);
         } else {
             return "Invalid username/password.";
         }
     }
 
-    private function getToken($userId_IN, $username_IN)
-    {
-        // If token exist and is valid, then checkToken() returns an updated token
-        // If token exist and isn't valid, then checkToken() returns "deleted"
-        // If token doesn't exist, then checkToken returns FALSE
-
-        if ($this->checkToken($userId_IN) == "deleted") {
-            echo "token exist but isn't valid, creating new token and deletes the old one";
-            echo "<br>";
-            return $this->createToken($userId_IN, $username_IN);
-        }
-
-        if ($this->checkToken($userId_IN) == "updated") {
-            echo "token exist and is valid, then checkToken() returns an updated token";
-            echo "<br>";
-            return $this->token;
-        }
-
-        if ($this->checkToken($userId_IN) === false) {
-            echo "token doesn't exist, creating a token";
-            echo "<br>";
-            return $this->createToken($userId_IN, $username_IN);
-        }
-    }
-
-    public function checkToken($userId_IN)
-    {
-        /* 
-
-        If token:
-        exist and is valid      ->   checkToken() returns an updated token
-        exist and isn't validd  ->   checkToken() returns "deleted"
-        doesn't exist           ->   checkToken returns FALSE
-
-        */
-
-        // Check if token is active
-        $query_string = "SELECT Date_Updated, Token FROM Tokens WHERE Users_Id = :userId_IN";
-
-        $statementHandler = $this->database_handler->prepare($query_string);
-        if ($statementHandler !== false) {
-
-            $statementHandler->bindParam(":userId_IN", $userId_IN);
-            $execSuccess = $statementHandler->execute();
-
-            if ($execSuccess === true) {
-
-                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
-
-                if (!empty($result)) {
-                    $token_timestamp = new DateTime($result['Date_Updated']);
-                    $current_timestamp = new DateTime(date('Y-m-d H:i:s'));
-
-                    // Get interval between Date_Updated and Current time:
-                    $interval = $token_timestamp->diff($current_timestamp);
-                    $interval = $interval->format('%i'); // Format result to minutes
-
-                    if ($interval < $this->token_validity_time) {
-                        // Update token 
-                        return $this->validateToken(
-                            $result['Token'],
-                            $current_timestamp
-                        );
-                    } else {
-                        // Token is not active
-                        return $this->deleteToken($userId_IN);
-                    }
-                } else {
-                    // Token doesn't exist
-                    return false;
-                }
-            } else {
-                $errorMessage = "Execute Failed";
-                $errorLocation = "checkToken() in Users.php";
-            }
-        } else {
-            $errorMessage = "Statementhandler Failed";
-            $errorLocation = "checkToken() in Users.php";
-        }
-
-        return $this->errorHandler($errorMessage, $errorLocation);
-    }
 
     private function createToken($userId_IN, $username_IN)
     {
+        // Create unique token
         $uniqueToken = md5($username_IN . uniqid('', true) . time());
 
         $query_string = "INSERT INTO Tokens(Users_Id, Token) VALUES (:userId_IN, :token)";
@@ -364,7 +282,7 @@ class User
             $execSuccess = $statementHandler->execute();
 
             if ($execSuccess == true) {
-                // Token created!
+                // Token created! Return token
                 return $uniqueToken;
             } else {
                 $errorMessage = "Execute Failed";
@@ -373,35 +291,6 @@ class User
         } else {
             $errorMessage = "StatementHandler Failed";
             $errorLocation = "createToken() in Users.php";
-        }
-
-        return $this->errorHandler($errorMessage, $errorLocation);
-    }
-
-    private function validateToken($token_IN)
-    {
-        $query_string = "UPDATE TokensSET Date_Updated = :currentTime WHERE (Token = :token_IN)";
-        $statementHandler = $this->database_handler->prepare($query_string);
-
-        if ($statementHandler !== false) {
-
-            // Get current time
-            $current_timestamp = date('Y-m-d H:i:s');
-
-            $statementHandler->bindParam(":currentTime", $current_timestamp);
-            $statementHandler->bindParam(":token_IN", $token_IN);
-            $execSuccess = $statementHandler->execute();
-
-            if ($execSuccess === true) {
-                $this->token = $token_IN;
-                return "updated";
-            } else {
-                $errorMessage = "Execute Failed";
-                $errorLocation = "validateToken() in Users.php";
-            }
-        } else {
-            $errorMessage = "Statementhandler Failed";
-            $errorLocation = "validateToken() in Users.php";
         }
 
         return $this->errorHandler($errorMessage, $errorLocation);
@@ -421,7 +310,6 @@ class User
 
             if ($execSuccess == true) {
                 // Token deleted!
-                $this->token = "";
                 return "deleted";
             } else {
                 $errorMessage = "Execute Failed";
@@ -434,12 +322,154 @@ class User
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    private function errorHandler($message_IN, $errorLocation_IN)
+    public function getToken($userId_IN, $username_IN)
+    {
+        // If token exist and isn't valid, then checkToken() returns "deleted"
+        // If token doesn't exist, then checkToken returns FALSE
+
+        if ($this->checkToken($userId_IN) == "deleted") {
+            // Token did exist but was deleted. Create a new one
+            return $this->createToken($userId_IN, $username_IN);
+        }
+
+        if ($this->checkToken($userId_IN) === false) {
+            // Token doesn't exist, create a token";
+            return $this->createToken($userId_IN, $username_IN);
+        }
+    }
+
+    private function checkToken($userId_IN)
+    {
+        /* 
+
+        If token:
+        exist and isn't valid  ->   checkToken() returns "deleted"
+        doesn't exist           ->   checkToken returns FALSE
+
+        */
+
+        // Check if token is active
+        $query_string = "SELECT Date_Updated, Token FROM Tokens WHERE Users_Id = :userId_IN";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+        if ($statementHandler !== false) {
+
+            $statementHandler->bindParam(":userId_IN", $userId_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+
+                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+
+                if (!empty($result)) {
+                    // Token exist, delete and return a confirmation from deleteToken()
+                    return $this->deleteToken($userId_IN);
+                } else {
+                    // Token doesn't exist
+                    return false;
+                }
+            } else {
+                $errorMessage = "Execute Failed";
+                $errorLocation = "checkToken() in Users.php";
+            }
+        } else {
+            $errorMessage = "Statementhandler Failed";
+            $errorLocation = "checkToken() in Users.php";
+        }
+
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    public function validateToken($token_IN)
+    {
+        // Check if token is active
+        $query_string = "SELECT Date_Updated, Token FROM Tokens WHERE Token = :token_IN";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+        if ($statementHandler !== false) {
+
+            $statementHandler->bindParam(":token_IN", $token_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+
+                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+
+                if (!empty($result)) {
+                    // Token exists
+                    $token_timestamp = new DateTime($result['Date_Updated']);
+                    $current_timestamp = new DateTime(date('Y-m-d H:i:s'));
+
+                    // Get interval between Date_Updated and Current time:
+                    $interval = $token_timestamp->diff($current_timestamp);
+                    $interval = $interval->format('%i'); // Format result to minutes
+
+                    if ($interval < $this->token_validity_time) {
+                        // Update token, return an updated token through updateToken() on success
+                        return $this->updateToken($result['Token']);
+                    } else {
+                        // Token is not active, return false
+                        $errorMessage = "Token is not active";
+                        $this->errorHandler($errorMessage);
+                        return false;
+                    }
+                } else {
+                    // Token doesn't exist, return false
+                    $errorMessage =  "Token doesnt exist";
+                    $this->errorHandler($errorMessage);
+                    return false;
+                }
+            } else {
+                $errorMessage = "Execute Failed";
+                $errorLocation = "checkToken() in Users.php";
+            }
+        } else {
+            $errorMessage = "Statementhandler Failed";
+            $errorLocation = "checkToken() in Users.php";
+        }
+
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    private function updateToken($token_IN)
+    {
+        $query_string = "UPDATE TokensSET Date_Updated = :currentTime WHERE (Token = :token_IN)";
+        $statementHandler = $this->database_handler->prepare($query_string);
+
+        if ($statementHandler !== false) {
+
+            // Get current time 
+            $current_timestamp = date('Y-m-d H:i:s');
+
+            // Insert current time in "Date_Updated" column
+            $statementHandler->bindParam(":currentTime", $current_timestamp);
+            $statementHandler->bindParam(":token_IN", $token_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                // Return an updated token
+                return $token_IN;
+            } else {
+                $errorMessage = "Execute Failed";
+                $errorLocation = "updateToken() in Users.php";
+            }
+        } else {
+            $errorMessage = "Statementhandler Failed";
+            $errorLocation = "updateToken() in Users.php";
+        }
+
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
         $returnObject = new stdClass;
 
         $returnObject->message = $message_IN;
+
+        if($errorLocation_IN !== 0){
         $returnObject->location = $errorLocation_IN;
+        }
         echo json_encode($returnObject);
     }
 }
