@@ -266,7 +266,7 @@ class User
         }
     }
 
-    public function getToken($userId_IN, $username_IN)
+    private function getToken($userId_IN, $username_IN)
     {
         // If token exist and is valid, then checkToken() returns an updated token
         // If token exist and isn't valid, then checkToken() returns "deleted"
@@ -283,7 +283,6 @@ class User
             echo "<br>";
             return $this->token;
         }
-
 
         if ($this->checkToken($userId_IN) === false) {
             echo "token doesn't exist, creating a token";
@@ -350,7 +349,7 @@ class User
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function createToken($userId_IN, $username_IN)
+    private function createToken($userId_IN, $username_IN)
     {
         $uniqueToken = md5($username_IN . uniqid('', true) . time());
 
@@ -379,7 +378,7 @@ class User
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function validateToken($token_IN)
+    private function validateToken($token_IN)
     {
         $query_string = "UPDATE TokensSET Date_Updated = :currentTime WHERE (Token = :token_IN)";
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -408,7 +407,7 @@ class User
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function deleteToken($userId_IN)
+    private function deleteToken($userId_IN)
     {
 
         $query_string = "DELETE FROM Tokens WHERE Users_Id = :userId_IN";
