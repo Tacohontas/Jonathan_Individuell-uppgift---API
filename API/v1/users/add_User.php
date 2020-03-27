@@ -2,10 +2,10 @@
 include("../../objects/Users.php");
 
 // test_data
-$_POST['username'] = "Test";
-$_POST['password'] = "password";
-$_POST['email'] = "test@test.se";
-$_POST['role_id'] = 1;
+// $_POST['username'] = "Test";
+// $_POST['password'] = "password";
+// $_POST['email'] = "test@test.se";
+// $_POST['role_id'] = 1;
 
 
 // Init errors

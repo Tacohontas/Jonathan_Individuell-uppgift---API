@@ -181,7 +181,7 @@ class User
                 $query_string .= "WHERE Date_Created = :value ";
                 break;
             default:
-                $errorMessage = "Second column is not valid";
+                $errorMessage = "First column is not valid";
                 $errorLocation = "getUser() in Users.php";
                 return $this->errorHandler($errorMessage, $errorLocation);
         };
@@ -261,7 +261,8 @@ class User
             // Return token through getToken()
             return $this->getToken($return['Id'], $return['Username']);
         } else {
-            return "Invalid username/password.";
+            $errorMessage = "Invalid username/password.";
+            return $this->errorHandler($errorMessage);
         }
     }
 
@@ -382,6 +383,11 @@ class User
 
     public function validateToken($token_IN)
     {
+        // If token exists and is active = return an updated token
+        // If token isn't active. Return errormessage and false
+        // If token doesn't exist. Return errormessage and false
+
+
         // Check if token is active
         $query_string = "SELECT Date_Updated, Token FROM Tokens WHERE Token = :token_IN";
 
@@ -461,14 +467,45 @@ class User
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
+    public function checkTokenRole($token_IN)
+    {
+        // Check role from token id
+
+        $query_string = "SELECT Roles.Name AS Role FROM Tokens JOIN Users ON Users_Id = Users.Id JOIN Roles ON Roles_Id = Roles.Id WHERE Token = :token_IN";
+        $statementHandler = $this->database_handler->prepare($query_string);
+        if ($statementHandler !== false) {
+
+            $statementHandler->bindParam(":token_IN", $token_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+                if (!empty($result)) {
+                    // Return role as a string
+                    return $result['Role'];
+                } else {
+                    $errorMessage = "Token doesn't exist";
+                    return $this->errorHandler($errorMessage);
+                }
+            } else {
+                $errorMessage = "Execute Failed";
+                $errorLocation = "updateToken() in Users.php";
+            }
+        } else {
+            $errorMessage = "Statementhandler Failed";
+            $errorLocation = "updateToken() in Users.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
         $returnObject = new stdClass;
 
         $returnObject->message = $message_IN;
 
-        if($errorLocation_IN !== 0){
-        $returnObject->location = $errorLocation_IN;
+        if ($errorLocation_IN !== 0) {
+            $returnObject->location = $errorLocation_IN;
         }
         echo json_encode($returnObject);
     }
