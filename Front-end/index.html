@@ -100,16 +100,15 @@
         <h2>Uppdatera Produkt</h2>
 
         <form class="form">
+            <input type="text" name="url" placeholder="http://" value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/products/update_Product.php" /><br />
             <input type="text" name="token" placeholder="token" /><br />
+            <input type="text" name="name" placeholder="Product Name" /><br />
+            <input type="number" name="price" placeholder="Price" /><br />
+            <input type="text" name="brand" placeholder="Brand" /><br />
+            <input type="text" name="color" placeholder="Color" /><br />
 
-            <input type="text" name="url" placeholder="http://" value="http://192.168.64.2/api/posts/updatePost.php" /><br />
-            <input type="number" name="id" placeholder="id" /><br />
-
-            <input type="text" name="title" placeholder="title" /><br />
-
-            <textarea name="content" placeholder="content"></textarea><br />
             GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
-                value="post" /><br />
+                value="post" checked /><br />
             <input type="submit" />
         </form>
 
@@ -133,10 +132,10 @@
     <h2>Hämta alla produkter:</h2>
 
     <form class="form">
-        <input type="text" name="url" placeholder="http://" value="http://192.168.64.2/api/posts/getAllPosts.php" /><br />
+        <input type="text" name="url" placeholder="http://" value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/products/getAll_Products.php" /><br />
         <input type="text" name="token" placeholder="token" /><br />
         GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
-            value="post" /><br />
+            value="post" checked /><br />
         <input type="submit" />
     </form>
 </div>

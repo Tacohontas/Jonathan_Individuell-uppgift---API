@@ -13,7 +13,7 @@ class Product
     public function createProduct($name_IN, $price_IN, $brand_IN, $color_IN)
     {
 
- 
+
         // Check if product is already created:
         if ($this->getProduct("Name", $name_IN) === false) {
             // If product doesn't exist: create product and return product name on success
@@ -50,12 +50,21 @@ class Product
 
     public function getProduct($column_IN, $value_IN)
     {
-        // Get product by search terms
-        // Return FALSE if there's no match in DB
+        /*
+
+        Column = which column to match with value
+        Value  = which value match with column
+
+        Example:
+        getProduct(Color, "Yellow") will return a product with color yellow. 
+
+        Return FALSE if there's no match in DB
+
+        */
 
         $query_string = "SELECT Id, Name, Date_Created, Last_Updated, Price, Brand, Color FROM Products ";
 
-        
+
 
         switch ($column_IN) {
 
@@ -88,7 +97,7 @@ class Product
         };
 
         $statementHandler = $this->database_handler->prepare($query_string);
-       
+
 
         if ($statementHandler !== false) {
 
@@ -114,6 +123,33 @@ class Product
         } else {
             $errorMessage = "StatementHandler Failed";
             $errorLocation = "createProduct() in Products.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    public function getAllProducts()
+    {
+        $query_string = "SELECT Id, Name, Date_Created, Last_Updated, Price, Brand, Color FROM Products ";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+
+        if ($statementHandler !== false) {
+
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                // Fetch result
+                $result = $statementHandler->fetchAll(PDO::FETCH_ASSOC);
+
+                // return result
+                return $result;
+            } else {
+                $errorMessage = "Execute Failed";
+                $errorLocation = "getAllProducts() in Products.php";
+            }
+        } else {
+            $errorMessage = "StatementHandler Failed";
+            $errorLocation = "getAllProducts() in Products.php";
         }
         return $this->errorHandler($errorMessage, $errorLocation);
     }
