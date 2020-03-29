@@ -127,13 +127,54 @@ class Product
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function getAllProducts()
+    public function getAllProducts($column_IN = 0, $order_IN = "ASC")
     {
+
         $query_string = "SELECT Id, Name, Date_Created, Last_Updated, Price, Brand, Color FROM Products ";
+
+        if ($column_IN !== 0) {
+            switch ($column_IN) {
+
+                case "Name":
+                    $query_string .= "ORDER BY Name ";
+                    break;
+
+                case "Price":
+                    $query_string .= "ORDER BY Price ";
+                    break;
+
+                case "Brand":
+                    $query_string .= "ORDER BY Brand ";
+                    break;
+
+                case "Color":
+                    $query_string .= "ORDER BY Color ";
+                    break;
+                case "Date_Created":
+                    $query_string .= "ORDER BY Date_Created ";
+                    break;
+                case "Last_Updated":
+                    $query_string .= "ORDER BY Last_Updated ";
+                    break;
+                default:
+                    $errorMessage = "Column is not valid";
+                    $errorLocation = "getAllProducts() in Products.php";
+                    return $this->errorHandler($errorMessage, $errorLocation);
+            };
+        }
+
+        $query_string .= $order_IN;
+
+        // Set Column from string
+
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
         if ($statementHandler !== false) {
+
+
+            if ($column_IN !== 0) {
+            }
 
             $execSuccess = $statementHandler->execute();
 
@@ -153,6 +194,7 @@ class Product
         }
         return $this->errorHandler($errorMessage, $errorLocation);
     }
+
 
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
