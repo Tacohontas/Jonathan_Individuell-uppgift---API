@@ -19,6 +19,8 @@ class Product
             // If product doesn't exist: create product and return product name on success
 
             $query_string = "INSERT INTO Products(Name, Price, Brand, Color) VALUES(:name_IN, :price_IN, :brand_IN, :color_IN)";
+
+
             $statementHandler = $this->database_handler->prepare($query_string);
 
             if ($statementHandler !== false) {
@@ -31,8 +33,15 @@ class Product
                 $execSuccess = $statementHandler->execute();
 
                 if ($execSuccess === true) {
+
+                    // Get Id from last inserted value in DB. (Our inserted user)
+                    $last_inserted_id = $this->database_handler->lastInsertId();
+
+                    // Fetch user with our id.
+                    $return = $this->getProduct("Id", $last_inserted_id);
+
                     // return Product name
-                    return "Product '{$name_IN}' created";
+                    return "Product '{$return['Name']}' created";
                 } else {
                     $errorMessage = "Execute Failed";
                     $errorLocation = "createProduct() in Products.php";
@@ -43,6 +52,75 @@ class Product
             }
         } else {
             $errorMessage = "Product already exists";
+            return $this->errorHandler($errorMessage);
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    public function updateProduct($id_IN, $name_IN, $price_IN, $brand_IN, $color_IN)
+    {
+
+        // Check if product exist:
+        if (!empty($this->getProduct("Id", $id_IN))) {
+            // If product exist: update product and return updated product
+
+            // init querty_string
+            $query_string = "";
+            // Get current timestamp for the "last_updated"-column
+            $current_timestamp = date('Y-m-d H:i:s');
+
+            if (!empty($name_IN)) {
+                $query_string = "UPDATE Products SET Name = :name_IN WHERE Id = :id_IN; ";
+            }
+            if (!empty($price_IN)) {
+                $query_string .= "UPDATE Products SET Price = :price_IN WHERE Id = :id_IN; ";
+            }
+            if (!empty($brand_IN)) {
+                $query_string .= "UPDATE Products SET Brand = :brand_IN WHERE Id = :id_IN; ";
+            }
+            if (!empty($color_IN)) {
+                $query_string .= "UPDATE Products SET Color = :color_IN WHERE Id = :id_IN; ";
+            }
+
+            $query_string .= "UPDATE Products SET Last_Updated = :currentTime WHERE Id = :id_IN; ";
+
+            $statementHandler = $this->database_handler->prepare($query_string);
+
+            if ($statementHandler !== false) {
+
+                if (!empty($name_IN)) {
+                    $statementHandler->bindParam(":name_IN", $name_IN);
+                }
+                if (!empty($price_IN)) {
+                    $statementHandler->bindParam(":price_IN", $price_IN);
+                }
+                if (!empty($brand_IN)) {
+                    $statementHandler->bindParam(":brand_IN", $brand_IN);
+                }
+                if (!empty($color_IN)) {
+                    $statementHandler->bindParam(":color_IN", $color_IN);
+                }
+
+                $statementHandler->bindParam(":currentTime", $current_timestamp);
+                $statementHandler->bindParam(":id_IN", $id_IN);
+
+                $execSuccess = $statementHandler->execute();
+
+                if ($execSuccess === true) {
+
+                    // Return a confirm message
+                    $message = "Product updated successfully!";
+                    return $message;
+                } else {
+                    $errorMessage = "Execute Failed";
+                    $errorLocation = "updateProduct() in Products.php";
+                }
+            } else {
+                $errorMessage = "StatementHandler Failed";
+                $errorLocation = "updateProduct() in Products.php";
+            }
+        } else {
+            $errorMessage = "Product doesn't exists";
             return $this->errorHandler($errorMessage);
         }
         return $this->errorHandler($errorMessage, $errorLocation);
@@ -69,7 +147,7 @@ class Product
         switch ($column_IN) {
 
             case "Id":
-                $query_string .= "WHERE Products.Id = :value_IN ";
+                $query_string .= "WHERE Id = :value_IN ";
                 break;
             case "Name":
                 $query_string .= "WHERE Name = :value_IN ";
@@ -98,7 +176,6 @@ class Product
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
-
         if ($statementHandler !== false) {
 
             $statementHandler->bindParam(":value_IN", $value_IN);
@@ -118,11 +195,11 @@ class Product
                 }
             } else {
                 $errorMessage = "Execute Failed";
-                $errorLocation = "createProduct() in Products.php";
+                $errorLocation = "getProduct() in Products.php";
             }
         } else {
             $errorMessage = "StatementHandler Failed";
-            $errorLocation = "createProduct() in Products.php";
+            $errorLocation = "getProduct() in Products.php";
         }
         return $this->errorHandler($errorMessage, $errorLocation);
     }
