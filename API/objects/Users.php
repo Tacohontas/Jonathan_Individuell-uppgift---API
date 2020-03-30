@@ -489,14 +489,46 @@ class User
                 }
             } else {
                 $errorMessage = "Execute Failed";
-                $errorLocation = "updateToken() in Users.php";
+                $errorLocation = "checkTokenRole() in Users.php";
             }
         } else {
             $errorMessage = "Statementhandler Failed";
-            $errorLocation = "updateToken() in Users.php";
+            $errorLocation = "checkTokenRole() in Users.php";
         }
         return $this->errorHandler($errorMessage, $errorLocation);
     }
+
+    public function getUserFromToken($token_IN){
+          // Check role from token id
+
+          $query_string = "SELECT Users.Id FROM Users JOIN Tokens on Users.Id = Users_Id WHERE Token = :token_IN";
+          $statementHandler = $this->database_handler->prepare($query_string);
+          if ($statementHandler !== false) {
+  
+              $statementHandler->bindParam(":token_IN", $token_IN);
+              $execSuccess = $statementHandler->execute();
+  
+              if ($execSuccess === true) {
+                  $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+                  if (!empty($result)) {
+                      // Return role as a string
+                      return $result['Id'];
+                  } else {
+                      $errorMessage = "Token doesn't exist";
+                      $this->errorHandler($errorMessage);
+                      return false;
+                  }
+              } else {
+                  $errorMessage = "Execute Failed";
+                  $errorLocation = "getUserFromToken() in Users.php";
+              }
+          } else {
+              $errorMessage = "Statementhandler Failed";
+              $errorLocation = "getUserFromToken() in Users.php";
+          }
+          return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
 
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {

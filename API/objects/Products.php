@@ -272,6 +272,37 @@ class Product
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
+    public function deleteProduct($id_IN)
+    {
+
+        // check if file exists
+        if ($this->getProduct("Id", $id_IN) !== false) {
+
+            $query_string = "DELETE FROM Products WHERE Id = :id_IN";
+            $statementHandler = $this->database_handler->prepare($query_string);
+
+            if ($statementHandler !== false) {
+
+                $statementHandler->bindParam(":id_IN", $id_IN);
+                $execSuccess = $statementHandler->execute();
+
+                if ($execSuccess == true) {
+                    // Deleted product successfully
+                    return true;
+                } else {
+                    // Execute failed
+                    return false;
+                }
+            } else {
+                $errorMessage = "StatementHandler Failed";
+                $errorLocation = "deleteProduct() in Products.php";
+            }
+        } else {
+            $errorMessage = "Product doesn't exist.";
+            $errorLocation = "deleteProduct() in Products.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
 
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
