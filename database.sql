@@ -82,6 +82,7 @@ CREATE TABLE `Purchases`(
   `Id` INT NOT NULL AUTO_INCREMENT,
   `Carts_Id` INT NOT NULL,
   `Date_Checkout` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `Total` INT NOT NULL,
   PRIMARY KEY(`Id`),
   FOREIGN KEY(`Carts_Id`) REFERENCES Carts(`Id`)
 ) engine = innoDB;
