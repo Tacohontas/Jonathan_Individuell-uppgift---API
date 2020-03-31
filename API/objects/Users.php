@@ -511,7 +511,7 @@ class User
               if ($execSuccess === true) {
                   $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
                   if (!empty($result)) {
-                      // Return role as a string
+                      // Return user Id
                       return $result['Id'];
                   } else {
                       $errorMessage = "Token doesn't exist";
