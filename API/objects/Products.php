@@ -204,7 +204,7 @@ class Product
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function getAllProducts($column_IN = 0, $order_IN = "ASC")
+    public function getAllProducts($column_IN = 0, $order_IN = 0)
     {
 
         $query_string = "SELECT Id, Name, Date_Created, Last_Updated, Price, Brand, Color FROM Products ";
@@ -240,7 +240,9 @@ class Product
             };
         }
 
+        if($order_IN !== 0){
         $query_string .= $order_IN;
+        };
 
         // Set Column from string
 
@@ -249,9 +251,6 @@ class Product
 
         if ($statementHandler !== false) {
 
-
-            if ($column_IN !== 0) {
-            }
 
             $execSuccess = $statementHandler->execute();
 

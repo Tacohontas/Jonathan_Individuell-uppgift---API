@@ -7,8 +7,11 @@ $user_handler = new User($dbh);
 
 
 
+
 $token = isset($_POST['token']) ? $_POST['token'] : "";
 $productId = isset($_POST['Id']) ? $_POST['Id'] : "";
+
+
 
 // Init errors
 $error = false;
@@ -32,9 +35,9 @@ if ($error == true) {
 
 
 
-if ($user_handler->validateToken($_POST['token']) !== false) {
+if ($user_handler->validateToken($token) !== false) {
     // Token is valid
-    $userId = $user_handler->getUserFromToken($_POST['token']);
+    $userId = $user_handler->getUserFromToken($token);
     if (!empty($userId)) {
         echo $cart_handler->addToCart($userId, $productId);
         return;

@@ -53,11 +53,12 @@ CREATE TABLE `Products`(
 CREATE TABLE `Carts`(
     `Id` INT NOT NULL AUTO_INCREMENT,
     `User_Id` INT NOT NULL,
-    `Total` INT NOT NULL DEFAULT 0,
     `Checkout_Done` BOOLEAN NOT NULL DEFAULT FALSE,
     `Date_Created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `Date_Updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(`Id`),
     FOREIGN KEY(`User_Id`) REFERENCES Users(`Id`)
+
 ) engine = innoDB;
 
 /* ProductsInCarts */
@@ -68,8 +69,11 @@ CREATE TABLE `ProductsInCarts`(
     `Products_Id` INT NOT NULL,
     `Date_Added` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(`Id`),
-    FOREIGN KEY(`Carts_Id`) REFERENCES Carts(`Id`),
     FOREIGN KEY(`Products_Id`) REFERENCES Products(`Id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    FOREIGN KEY(`Carts_Id`) REFERENCES Carts(`Id`)
+    ON DELETE CASCADE
 ) engine = innoDB;
 
 /* PURCHASES */ 
