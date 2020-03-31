@@ -30,7 +30,6 @@ if ($error == true) {
     die;
 }
 
-
 // If cart id isnt empty, check for admin rights
 if (!empty($_POST['Id'])) {
     if ($user_handler->checkTokenRole($_POST['token']) == "Admin") {

@@ -74,6 +74,23 @@ class Cart
         }
     }
 
+    public function getAllCarts($status_IN){
+        // To get all carts (even the check out'ed ones):   $status_IN = 0 
+        // To get carts that hasn't been check out'ed:      $status_IN = 1
+        $query_string = "SELECT Id, User_id, Date_Created, Date_Updated FROM Carts WHERE Checkout_Done = :status_IN";
+        $statementHandler = $this->database_handler->prepare($query_string);
+
+        if($statementHandler !== false){
+            $statementHandler->bindParam(":status_IN", $status_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if($execSuccess === true){
+                return $statementHandler->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+        }
+    }
+
     public function checkCart($userId_IN)
     {
         /* 
