@@ -1,2 +1,57 @@
 <?php
 include("../../config/database_handler.php");
+
+class Purchase{
+
+    private $database_handler;
+
+    public function __construct($database_handler_IN)
+    {
+        $this->database_handler = $database_handler_IN;
+    }
+
+    public function getPurchase($purchaseId_IN)
+    {
+        /* 
+        Get purchase by purchase Id.
+
+        If purchase doesnt exist = return false
+        If purchase exist        = return purchase
+        */
+        $query_string = "SELECT Id, Carts_Id, Date_Checkout, Total FROM Purchases WHERE Id = :purchaseId_IN";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+        if ($statementHandler !== false) {
+            $statementHandler->bindParam(":purchaseId_IN", $purchaseId_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+                if (!empty($result)) {
+                    return $result;
+                } else {
+                    return false;
+                }
+            } else {
+                $errorMessage = "Execute failed";
+                $errorLocation = "getPurchase() in Carts.php";
+            }
+        } else {
+            $errorMessage = "Execute failed";
+            $errorLocation = "getPurchase() in Carts.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    private function errorHandler($message_IN, $errorLocation_IN = 0)
+    {
+        $returnObject = new stdClass;
+
+        $returnObject->message = $message_IN;
+
+        if ($errorLocation_IN !== 0) {
+            $returnObject->location = $errorLocation_IN;
+        }
+        echo json_encode($returnObject);
+    }
+}

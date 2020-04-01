@@ -404,7 +404,7 @@ class User
                 if (!empty($result)) {
                     // Token exists
                     $token_timestamp = new DateTime($result['Date_Updated']);
-                    $current_timestamp = new DateTime(date('Y-m-d H:i:s'));
+                    $current_timestamp = new DateTime($this->getCurrentTimeFromDB());
 
                     // Get interval between Date_Updated and Current time:
                     $interval = $token_timestamp->diff($current_timestamp);
@@ -439,16 +439,11 @@ class User
 
     private function updateToken($token_IN)
     {
-        $query_string = "UPDATE TokensSET Date_Updated = :currentTime WHERE (Token = :token_IN)";
+        $query_string = "UPDATE TokensSET Date_Updated = CURRENT_TIMESTAMP WHERE (Token = :token_IN)";
         $statementHandler = $this->database_handler->prepare($query_string);
 
         if ($statementHandler !== false) {
 
-            // Get current time 
-            $current_timestamp = date('Y-m-d H:i:s');
-
-            // Insert current time in "Date_Updated" column
-            $statementHandler->bindParam(":currentTime", $current_timestamp);
             $statementHandler->bindParam(":token_IN", $token_IN);
             $execSuccess = $statementHandler->execute();
 
@@ -529,6 +524,18 @@ class User
           return $this->errorHandler($errorMessage, $errorLocation);
     }
 
+    private function getCurrentTimeFromDB(){
+        $query_string = "SELECT CURRENT_TIMESTAMP";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+        if($statementHandler !== false){
+            $execSuccess = $statementHandler->execute();
+            if($execSuccess === true){
+                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+                return $result['CURRENT_TIMESTAMP'];
+            }
+        }
+    }
 
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {

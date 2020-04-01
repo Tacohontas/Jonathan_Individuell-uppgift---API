@@ -66,8 +66,6 @@ class Product
 
             // init querty_string
             $query_string = "";
-            // Get current timestamp for the "last_updated"-column
-            $current_timestamp = date('Y-m-d H:i:s');
 
             if (!empty($name_IN)) {
                 $query_string = "UPDATE Products SET Name = :name_IN WHERE Id = :id_IN; ";
@@ -82,7 +80,7 @@ class Product
                 $query_string .= "UPDATE Products SET Color = :color_IN WHERE Id = :id_IN; ";
             }
 
-            $query_string .= "UPDATE Products SET Last_Updated = :currentTime WHERE Id = :id_IN; ";
+            $query_string .= "UPDATE Products SET Last_Updated = CURRENT_TIMESTAMP() WHERE Id = :id_IN; ";
 
             $statementHandler = $this->database_handler->prepare($query_string);
 
@@ -101,7 +99,6 @@ class Product
                     $statementHandler->bindParam(":color_IN", $color_IN);
                 }
 
-                $statementHandler->bindParam(":currentTime", $current_timestamp);
                 $statementHandler->bindParam(":id_IN", $id_IN);
 
                 $execSuccess = $statementHandler->execute();

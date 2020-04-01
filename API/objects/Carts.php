@@ -66,7 +66,7 @@ class Cart
 
             // Check if cart exists
             $cart = $this->checkCart($userId_IN);
-            if($cart == false){
+            if ($cart == false) {
                 return "Cart doesn't exist.";
             }
 
@@ -74,13 +74,13 @@ class Cart
             $result = $this->getProductsFromCart($userId_IN);
 
             $match = false;
-            for($i = 0; $i < count($result); $i++){
-                if($result[$i]['Id'] == $productId_IN){
+            for ($i = 0; $i < count($result); $i++) {
+                if ($result[$i]['Id'] == $productId_IN) {
                     $match = true;
                 }
             }
 
-            if($match == false){
+            if ($match == false) {
                 return "Product does not exist in cart";
             }
 
@@ -102,7 +102,7 @@ class Cart
 
                     // check if cart is empty, if yes = delete.
                     $result = $this->getProductsFromCart($userId_IN);
-                    if(empty($result)){
+                    if (empty($result)) {
                         // Delete cart
                         $this->deleteCart($cartId);
                         return "Last product is removed from cart. Cart is now deleted.";
@@ -306,7 +306,7 @@ class Cart
                 if (!empty($result)) {
                     // Cart exists
                     $cart_timestamp = new DateTime($result['Date_Updated']);
-                    $current_timestamp = new DateTime(date('Y-m-d H:i:s'));
+                    $current_timestamp = new DateTime($this->getCurrentTimeFromDB());
 
                     // Get interval between Date_Updated and Current time:
                     $interval = $cart_timestamp->diff($current_timestamp);
@@ -343,16 +343,11 @@ class Cart
 
     private function updateCart($id_IN)
     {
-        $query_string = "UPDATE Carts SET Date_Updated = :currentTime WHERE (Id = :id_IN)";
+        $query_string = "UPDATE Carts SET Date_Updated = CURRENT_TIMESTAMP WHERE (Id = :id_IN)";
         $statementHandler = $this->database_handler->prepare($query_string);
 
         if ($statementHandler !== false) {
 
-            // Get current time 
-            $current_timestamp = date('Y-m-d H:i:s');
-
-            // Insert current time in "Date_Updated" column
-            $statementHandler->bindParam(":currentTime", $current_timestamp);
             $statementHandler->bindParam(":id_IN", $id_IN);
             $execSuccess = $statementHandler->execute();
 
@@ -398,15 +393,15 @@ class Cart
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function getTotal($userId_IN)
+    public function getTotal($cartId_IN)
     {
         // get total
-        $query_string = "SELECT SUM(Price) AS Total FROM Carts JOIN ProductsInCarts ON Carts.Id = Carts_Id JOIN Products ON Products.Id = Products_Id WHERE User_Id = :userId_IN";
+        $query_string = "SELECT SUM(Price) AS Total FROM Carts JOIN ProductsInCarts ON Carts.Id = Carts_Id JOIN Products ON Products.Id = Products_Id WHERE Carts_Id = :cartId_IN";
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
         if ($statementHandler !== false) {
-            $statementHandler->bindParam(":userId_IN", $userId_IN);
+            $statementHandler->bindParam(":cartId_IN", $cartId_IN);
             $execSuccess = $statementHandler->execute();
 
             if ($execSuccess === true) {
@@ -414,7 +409,7 @@ class Cart
 
                 if (!empty($result['Total']) == true) {
                     // Return result
-                    return $result;
+                    return $result['Total'];
                 }
             } else {
                 $errorMessage = "Execution failed";
@@ -453,7 +448,7 @@ class Cart
                 }
             } else {
                 $errorMessage = "Execution failed";
-                $errorLocation = "getTotal() in Carts.php";
+                $errorLocation = "getCartById() in Carts.php";
             }
         } else {
             $errorMessage = "Statementhandler failed";
@@ -483,10 +478,83 @@ class Cart
         }
     }
 
+    public function checkoutCart($cartId_IN)
+    {
+        // Update "Checkout_Done" column to TRUE
+        $query_string = "UPDATE Carts SET Checkout_Done = True WHERE Id = :cartId_IN";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+
+        if ($statementHandler !== false) {
+            $statementHandler->bindParam(":cartId_IN", $cartId_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                // Cart updated. Add to purchase
+                if ($this->addToPurchases($cartId_IN) === true) {
+                    return true;
+                }
+            } else {
+                $errorMessage = "Execute failed";
+                $errorLocation = "checkoutCart() in Carts.php";
+            }
+        } else {
+            $errorMessage = "Statementhandler failed";
+            $errorLocation = "checkoutCart() in Carts.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    private function addToPurchases($cartId_IN)
+    {
+        $query_string = "INSERT INTO Purchases(Carts_Id, Total) VALUES (:cartId_IN, :total)";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+
+        if ($statementHandler !== false) {
+            // Get total sum of products in cart.
+            $total = $this->getTotal($cartId_IN);
+
+            $statementHandler->bindParam(":cartId_IN", $cartId_IN);
+            $statementHandler->bindParam(":total", $total);
+
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                return true;
+            } else {
+                $errorMessage = "Execute failed";
+                $errorLocation = "addToPurchases() in Carts.php";
+            }
+        } else {
+            $errorMessage = "Statementhandler failed";
+            $errorLocation = "addToPurchases() in Carts.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    public function getLastInsertedId()
+    {
+        return $this->database_handler->lastInsertId();
+    }
+
+    private function getCurrentTimeFromDB()
+    {
+        $query_string = "SELECT CURRENT_TIMESTAMP";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+        if ($statementHandler !== false) {
+            $execSuccess = $statementHandler->execute();
+            if ($execSuccess === true) {
+                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+                return $result['CURRENT_TIMESTAMP'];
+            }
+        }
+    }
+
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
         $returnObject = new stdClass;
-
         $returnObject->message = $message_IN;
 
         if ($errorLocation_IN !== 0) {

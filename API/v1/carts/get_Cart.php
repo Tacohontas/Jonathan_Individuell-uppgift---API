@@ -53,7 +53,7 @@ if (!empty($_POST['Id'])) {
                 // Get user_id from token to get total FIX (måste göras smidigare)
                 $userId = $user_handler->getUserFromToken($_POST['token']);
                 if (!empty($userId)) {
-                    print_r($cart_handler->getTotal($userId));
+                    print_r($cart_handler->getTotal($_POST['Id']));
                     print_r($cart_handler->getProductsFromCart($userId));
                     return;
                 }
