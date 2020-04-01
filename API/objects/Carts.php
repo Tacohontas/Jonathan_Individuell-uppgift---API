@@ -309,7 +309,8 @@ class Cart
 
     public function deleteCart($id_IN)
     {
-
+        // Deletes cart if it's not checked out.
+        
         $query_string = "DELETE FROM Carts WHERE Id = :id_IN";
         $statementHandler = $this->database_handler->prepare($query_string);
 
