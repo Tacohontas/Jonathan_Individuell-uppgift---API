@@ -58,6 +58,70 @@ class Cart
         }
     }
 
+    public function removeFromCart($userId_IN, $productId_IN)
+    {
+        // check if product exist
+        if ($this->getProduct($productId_IN) !== false) {
+            // Product exists!
+
+            // Check if cart exists
+            $cart = $this->checkCart($userId_IN);
+            if($cart == false){
+                return "Cart doesn't exist.";
+            }
+
+            // Check if product exists in cart
+            $result = $this->getProductsFromCart($userId_IN);
+
+            $match = false;
+            for($i = 0; $i < count($result); $i++){
+                if($result[$i]['Id'] == $productId_IN){
+                    $match = true;
+                }
+            }
+
+            if($match == false){
+                return "Product does not exist in cart";
+            }
+
+            $query_string = "DELETE FROM ProductsInCarts WHERE Products_Id = :productId_IN AND Carts_Id = :cartId LIMIT 1";
+
+            $statementHandler = $this->database_handler->prepare($query_string);
+
+            if ($statementHandler !== false) {
+
+                $cartId = $cart['Id'];
+
+                $statementHandler->bindParam(":productId_IN", $productId_IN);
+                $statementHandler->bindParam(":cartId", $cartId);
+
+                $execSuccess = $statementHandler->execute();
+
+                if ($execSuccess === true) {
+                    // Product successfully removed from cart.
+
+                    // check if cart is empty, if yes = delete.
+                    $result = $this->getProductsFromCart($userId_IN);
+                    if(empty($result)){
+                        // Delete cart
+                        $this->deleteCart($cartId);
+                        return "Last product is removed from cart. Cart is now deleted.";
+                    }
+
+                    // Return message
+                    return "Product removed from cart";
+                } else {
+                    $errorMessage = "Execute failed.";
+                    $errorLocation = "removeFromCart() in Carts.php";
+                }
+            } else {
+                $errorMessage = "Statementhandler failed";
+                $errorLocation = "removeFromCart() in Carts.php";
+            }
+            return $this->errorHandler($errorMessage, $errorLocation);
+        }
+    }
+
     public function getCart($userId_IN)
     {
         // If cart doesn't exist , create cart
@@ -74,20 +138,20 @@ class Cart
         }
     }
 
-    public function getAllCarts($status_IN){
+    public function getAllCarts($status_IN)
+    {
         // To get all carts (even the check out'ed ones):   $status_IN = 0 
         // To get carts that hasn't been check out'ed:      $status_IN = 1
         $query_string = "SELECT Id, User_id, Date_Created, Date_Updated FROM Carts WHERE Checkout_Done = :status_IN";
         $statementHandler = $this->database_handler->prepare($query_string);
 
-        if($statementHandler !== false){
+        if ($statementHandler !== false) {
             $statementHandler->bindParam(":status_IN", $status_IN);
             $execSuccess = $statementHandler->execute();
 
-            if($execSuccess === true){
+            if ($execSuccess === true) {
                 return $statementHandler->fetchAll(PDO::FETCH_ASSOC);
             }
-
         }
     }
 
@@ -310,7 +374,7 @@ class Cart
     public function deleteCart($id_IN)
     {
         // Deletes cart if it's not checked out.
-        
+
         $query_string = "DELETE FROM Carts WHERE Id = :id_IN";
         $statementHandler = $this->database_handler->prepare($query_string);
 
@@ -334,7 +398,6 @@ class Cart
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    // FIX end point
     public function getTotal($userId_IN)
     {
         // get total
@@ -399,20 +462,21 @@ class Cart
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function getProductsFromCart($userId_IN){
+    public function getProductsFromCart($userId_IN)
+    {
 
-        $query_string = "SELECT Products.Name, Products.Brand, Products.Price, Products.Color FROM ProductsInCarts JOIN Carts ON Carts.Id = Carts_Id JOIN Products ON Products.Id = Products_Id WHERE User_Id = :userId_IN";
+        $query_string = "SELECT Products.Id, Products.Name, Products.Brand, Products.Price, Products.Color FROM ProductsInCarts JOIN Carts ON Carts.Id = Carts_Id JOIN Products ON Products.Id = Products_Id WHERE User_Id = :userId_IN";
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
-        if($statementHandler !== false){
+        if ($statementHandler !== false) {
             $statementHandler->bindParam(":userId_IN", $userId_IN);
             $execSuccess = $statementHandler->execute();
 
-            if($execSuccess === true){
+            if ($execSuccess === true) {
                 $result = $statementHandler->fetchAll(PDO::FETCH_ASSOC);
 
-                if(!empty($result)){
+                if (!empty($result)) {
                     return $result;
                 }
             }
