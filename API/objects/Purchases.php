@@ -1,7 +1,8 @@
 <?php
 include("../../config/database_handler.php");
 
-class Purchase{
+class Purchase
+{
 
     private $database_handler;
 
@@ -39,6 +40,39 @@ class Purchase{
         } else {
             $errorMessage = "Execute failed";
             $errorLocation = "getPurchase() in Carts.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    public function getUsersPurchases($userId_IN)
+    {
+        /* 
+        Get purchases done by User.
+
+        If purchases doesnt exist   = return false
+        If purchase/s exist          = return purchases
+        */
+        $query_string = "SELECT Purchases.Id, Carts_Id , User_Id, Date_Checkout, Total FROM Purchases JOIN Carts on Carts.Id = Carts_Id WHERE User_Id = :userId_IN";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+        if ($statementHandler !== false) {
+            $statementHandler->bindParam(":userId_IN", $userId_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                $result = $statementHandler->fetchAll(PDO::FETCH_ASSOC);
+                if (!empty($result)) {
+                    return $result;
+                } else {
+                    return false;
+                }
+            } else {
+                $errorMessage = "Execute failed";
+                $errorLocation = "getUsersPurchases() in Carts.php";
+            }
+        } else {
+            $errorMessage = "Execute failed";
+            $errorLocation = "getUsersPurchases() in Carts.php";
         }
         return $this->errorHandler($errorMessage, $errorLocation);
     }

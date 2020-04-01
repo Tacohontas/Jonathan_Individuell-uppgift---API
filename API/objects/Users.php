@@ -494,7 +494,7 @@ class User
     }
 
     public function getUserFromToken($token_IN){
-          // Check role from token id
+          // Get user id from Token
 
           $query_string = "SELECT Users.Id FROM Users JOIN Tokens on Users.Id = Users_Id WHERE Token = :token_IN";
           $statementHandler = $this->database_handler->prepare($query_string);
