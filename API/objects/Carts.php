@@ -165,7 +165,7 @@ class Cart
 
         */
 
-        $query_string = "SELECT Id, User_Id, Checkout_Done, Date_Created FROM Carts WHERE User_Id = :userId_IN";
+        $query_string = "SELECT Id, User_Id, Checkout_Done, Date_Created FROM Carts WHERE User_Id = :userId_IN AND Checkout_Done = 0";
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
