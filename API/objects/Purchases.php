@@ -14,10 +14,12 @@ class Purchase
     public function getPurchase($purchaseId_IN)
     {
         /* 
+        
         Get purchase by purchase Id.
 
         If purchase doesnt exist = return false
         If purchase exist        = return purchase
+
         */
         $query_string = "SELECT Id, Carts_Id, Date_Checkout, Total FROM Purchases WHERE Id = :purchaseId_IN";
 

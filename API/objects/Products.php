@@ -12,6 +12,15 @@ class Product
 
     public function createProduct($name_IN, $price_IN, $brand_IN, $color_IN)
     {
+        /* 
+
+        Create product if it doesn't exist.
+
+        Returns:
+        - product name on success
+        - error messages on failed operations
+
+        */
 
 
         // Check if product is already created:
@@ -59,12 +68,22 @@ class Product
 
     public function updateProduct($id_IN, $name_IN, $price_IN, $brand_IN, $color_IN)
     {
+        /* 
+
+        Update product if product exist
+
+        Returns:
+        - a confirm message on success
+        - error messages on failed operations
+
+        */
+
 
         // Check if product exist:
         if (!empty($this->getProduct("Id", $id_IN))) {
-            // If product exist: update product and return updated product
+            // product exist
 
-            // init querty_string
+            // init query_string
             $query_string = "";
 
             if (!empty($name_IN)) {
@@ -126,20 +145,22 @@ class Product
     public function getProduct($column_IN, $value_IN)
     {
         /*
+        Get product from DB based on a combination of column and value
 
-        Column = which column to match with value
-        Value  = which value match with column
+        $column_IN = which column to match with value
+        $value_IN  = which value to match with column
 
         Example:
         getProduct(Color, "Yellow") will return a product with color yellow. 
 
-        Return FALSE if there's no match in DB
+        Returns
+        - Product on success
+        - FALSE if there's no match in DB
+        - Error messages on failed operations
 
         */
 
         $query_string = "SELECT Id, Name, Date_Created, Last_Updated, Price, Brand, Color FROM Products ";
-
-
 
         switch ($column_IN) {
 
@@ -204,8 +225,19 @@ class Product
     public function getAllProducts($column_IN = 0, $order_IN = 0)
     {
 
+        /*
+        Get all products!
+        + sort by column if $column_IN & $order_IN is used.
+
+        Returns
+        - Result on success
+        - Error message on failed operations or faulty inputs.
+
+        */
+
         $query_string = "SELECT Id, Name, Date_Created, Last_Updated, Price, Brand, Color FROM Products ";
 
+        // Set Column from $column_IN if its not 0 (its 0 by default)
         if ($column_IN !== 0) {
             switch ($column_IN) {
 
@@ -237,12 +269,9 @@ class Product
             };
         }
 
-        if($order_IN !== 0){
-        $query_string .= $order_IN;
+        if ($order_IN !== 0) {
+            $query_string .= $order_IN;
         };
-
-        // Set Column from string
-
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
@@ -270,6 +299,16 @@ class Product
 
     public function deleteProduct($id_IN)
     {
+        /*
+        Delete product if it exists
+
+        Returns
+        - TRUE on Success
+        - FALSE on failed execute
+        - Error messages on other failed operations
+
+        */
+
 
         // check if file exists
         if ($this->getProduct("Id", $id_IN) !== false) {
@@ -302,6 +341,8 @@ class Product
 
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
+        // Return error messages in json format
+
         $returnObject = new stdClass;
 
         $returnObject->message = $message_IN;
