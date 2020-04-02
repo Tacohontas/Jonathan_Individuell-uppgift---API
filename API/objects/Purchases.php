@@ -14,7 +14,7 @@ class Purchase
     public function getPurchase($purchaseId_IN)
     {
         /* 
-        
+
         Get purchase by purchase Id.
 
         If purchase doesnt exist = return false
@@ -81,8 +81,16 @@ class Purchase
 
     public function getAllPurchases()
     {
+        /*
 
-        // Returns all purchases.
+        Get all of the purchases done
+
+        Returns
+        - All purchases on success
+        - FALSE if there is none
+        - Error messages on failed operations
+
+        */
 
         $query_string = "SELECT Id, Carts_Id, Date_Checkout, Total FROM Purchases";
 
@@ -112,6 +120,8 @@ class Purchase
 
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
+        // Return error messages in json format
+
         $returnObject = new stdClass;
 
         $returnObject->message = $message_IN;
