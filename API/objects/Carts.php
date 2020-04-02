@@ -15,7 +15,15 @@ class Cart
 
     public function addToCart($userId_IN, $productId_IN)
     {
+        /* 
+        Adds product to cart if:
+        Product Exist
 
+        Returns:
+        - A confirm message on success
+        - Error message/s on fail
+
+        */
 
         // check if product exist
         if ($this->getProduct($productId_IN) !== false) {
@@ -60,6 +68,19 @@ class Cart
 
     public function removeFromCart($userId_IN, $productId_IN)
     {
+        /* 
+        Removes product from cart if:
+        - Cart Exist
+        - Product Exists in cart
+
+        Deletes cart if there's no products left after removal.
+
+        Returns:
+        - A confirm message on success
+        - Error message/s on fail
+
+        */
+
         // check if product exist
         if ($this->getProduct($productId_IN) !== false) {
             // Product exists!
@@ -127,24 +148,40 @@ class Cart
 
     public function getCart($userId_IN)
     {
+        /* 
+
+        Get cart whether if it exists or not
+
+        Returns:
+        - A new cart if none exist
+        - An existing cart if it cart already exist
+
+        */
+
         // If cart doesn't exist , create cart
         if ($this->checkCart($userId_IN) === false) {
             // create cart
-            // echo "create cart";
             $this->createCart($userId_IN);
             // Run this method again to get cart
             return $this->getCart($userId_IN);
         } else {
             // Cart exists
-            // echo "cart exist";
             return $this->checkCart($userId_IN);
         }
     }
 
     public function getAllCarts($status_IN)
     {
-        // To get all carts (even the check out'ed ones):   $status_IN = 0 
-        // To get carts that hasn't been check out'ed:      $status_IN = 1
+        /* 
+
+        Get all carts
+
+        Returns:
+        - All carts (even the checkout'ed ones) if  $status_IN = 0
+        - Carts that hasn't been check out'ed if    $status_IN = 1
+
+        */
+
         $query_string = "SELECT Id, User_id, Date_Created, Date_Updated FROM Carts WHERE Checkout_Done = :status_IN";
         $statementHandler = $this->database_handler->prepare($query_string);
 
@@ -162,9 +199,14 @@ class Cart
     {
         /* 
 
+        Check if cart exists and is valid (updated within 2 days)
+
         If cart:
-        exists          ->   checkCart() returns cart
-        doesn't exist   ->   checkCart() returns FALSE
+        exists and is valid     -> checkCart() returns cart
+        exists but isnt valid   -> checkCart() deletes Cart and return false
+        doesn't exist           -> checkCart() returns FALSE
+
+        Returns errormessages on failed operations.
 
         */
 
@@ -192,7 +234,6 @@ class Cart
                     } else {
                         // Cart isnt valid delete cart
                         if ($this->deleteCart($result['Id']) === true) {
-                            // echo "Cart session expired, cart is deleted.";
                             return false;
                         }
                     }
@@ -214,6 +255,16 @@ class Cart
 
     private function createCart($userId_IN)
     {
+        /* 
+
+        Creates a cart
+
+        Returns:
+        - true on success
+        - errormessages on failed operations
+
+        */
+
         $query_string = "INSERT INTO Carts(User_Id) VALUES (:userId_IN)";
 
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -241,14 +292,11 @@ class Cart
     public function getProduct($id_IN)
     {
         /*
-        
-        Column = which column to match with value
-        Value  = which value match with column
-        
-        Example:
-        getProduct(Color, "Yellow") will return a product with color yellow. 
-        
-        Return FALSE if there's no match in DB
+        Get product by product id
+
+        Returns
+        - Product if it exists
+        - FALSE if there's no match in DB
         
         */
 
@@ -287,11 +335,15 @@ class Cart
 
     private function validateCart($id_IN)
     {
+        /*
+        Validate cart if it's been updated the last 2 days.
 
-        // If cart exists and is active = return an updated cart
-        // If cart isn't active. Return errormessage and false
-        // If cart doesn't exist. Return errormessage and false
+        Returns
+        - TRUE if cart exists and is active
+        - Errormessages and FALSE if cart isnt active
+        - Error message and FALSE if cart doesn't exist. 
 
+        */
 
         // Check if cart is active
         $query_string = "SELECT Date_Updated, Id FROM Carts WHERE Id = :id_IN";
@@ -346,6 +398,14 @@ class Cart
 
     private function updateCart($id_IN)
     {
+        /*
+        Update cart's Date_Updated-time in DB
+
+        Returns
+        - True on success
+        - Error messages on failed operations.
+
+        */
         $query_string = "UPDATE Carts SET Date_Updated = CURRENT_TIMESTAMP WHERE (Id = :id_IN)";
         $statementHandler = $this->database_handler->prepare($query_string);
 
@@ -371,7 +431,13 @@ class Cart
 
     public function deleteCart($cartId_IN)
     {
-        // Deletes cart if it's not checked out.
+        /* Deletes Cart
+
+        Returns
+        - True on success
+        - Error messages on failed operations
+
+        */
 
         $query_string = "DELETE FROM Carts WHERE Id = :cartId_IN";
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -398,7 +464,14 @@ class Cart
 
     public function getTotal($cartId_IN)
     {
-        // get total
+        /*
+        Get total of products in cart by cart id.
+
+        Returns
+        - Result on success
+        - Error messages on failed operations
+
+        */
         $query_string = "SELECT SUM(Price) AS Total FROM Carts JOIN ProductsInCarts ON Carts.Id = Carts_Id JOIN Products ON Products.Id = Products_Id WHERE Carts_Id = :cartId_IN";
 
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -427,9 +500,15 @@ class Cart
 
     public function getCartById($cartId_IN)
     {
+        /* 
+        Gets cart by Id (if it exists)
 
-        // Returns false if cart doesnt exist
-        // Returns cart if cart exists.
+        Returns
+        - The cart if cart does exist.
+        - FALSE if cart doesn't exist
+        - Error messages on failed operations
+
+        */
 
         $query_string = "SELECT Id, User_Id, Date_Created, Date_Updated FROM Carts WHERE Id = :cartId_IN AND Checkout_Done = FALSE";
 
@@ -462,7 +541,17 @@ class Cart
 
     public function getProductsFromCart($cartId_IN, $checkout_Done = 0)
     {
-        // Will get products from carts that haven't been checked out by default.
+
+        /*
+        Get products from carts             if $checkout_Done = 0 (its 0 by default).
+        Will get products from checkouts    if $checkout_Done = 1
+
+        Returns
+        - Products if cart exist and fits the requested state ($checkout_Done)
+        - FALSE if cart doesnt exist or is empty
+        - Error messages on failed operations
+
+        */
 
         $query_string = "SELECT Products.Id, Products.Name, Products.Brand, Products.Price, Products.Color FROM ProductsInCarts JOIN Carts ON Carts.Id = Carts_Id JOIN Products ON Products.Id = Products_Id WHERE Carts_Id = :cartId_IN ";
 
@@ -484,14 +573,30 @@ class Cart
 
                 if (!empty($result)) {
                     return $result;
+                } else {
+                    return false;
                 }
+            } else {
+                $errorMessage = "Execute failed";
+                $errorLocation = "getProductsFromCart() in Carts.php";
             }
+        } else {
+            $errorMessage = "Statementhandler failed";
+            $errorLocation = "getProductsFromCart() in Carts.php";
         }
+        return $this->errorHandler($errorMessage, $errorLocation);
     }
 
     public function checkoutCart($cartId_IN)
     {
-        // Update "Checkout_Done" column to TRUE
+        /* 
+        Checkout cart and adds cart to purchase table in DB on success
+
+        Returns 
+        - TRUE if cart was successfully added to purchase table
+        - Error messages on failed operations
+
+        */
         $query_string = "UPDATE Carts SET Checkout_Done = True WHERE Id = :cartId_IN";
 
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -518,6 +623,15 @@ class Cart
 
     private function addToPurchases($cartId_IN)
     {
+        /* 
+        Adds cart to purchase table in DB on success
+
+        Returns 
+        - TRUE if cart was successfully added to purchase table
+        - Error messages on failed operations
+
+        */
+
         $query_string = "INSERT INTO Purchases(Carts_Id, Total) VALUES (:cartId_IN, :total)";
 
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -546,11 +660,13 @@ class Cart
 
     public function getLastInsertedId()
     {
+        // Get last inserted Id to DB
         return $this->database_handler->lastInsertId();
     }
 
     private function getCurrentTimeFromDB()
     {
+        // Get current timestamp from server
         $query_string = "SELECT CURRENT_TIMESTAMP";
 
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -565,6 +681,8 @@ class Cart
 
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
+        // Return error messages in json format
+        
         $returnObject = new stdClass;
         $returnObject->message = $message_IN;
 
