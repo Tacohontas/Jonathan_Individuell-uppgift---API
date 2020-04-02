@@ -5,7 +5,7 @@ include("../../config/database_handler.php");
 class User
 {
     private $database_handler;
-    private $token_validity_time = 15; // Minutes
+    private $token_validity_time = 15; // Validity time in minutes
 
     public function __construct($datebase_handler_IN)
     {
@@ -15,6 +15,15 @@ class User
 
     public function addUser($username_IN, $password_IN, $email_IN, $roleId_IN)
     {
+        /*
+        Add user to DB through insertUserToDB-method if username & email is unique
+
+        Returns 
+        - Confirm message from insertUserToDb() on success
+        - Error messages on failed operations
+
+        */
+
         if ($this->isUsernameTaken($username_IN) === false) {
 
             if ($this->isEmailTaken($email_IN) === false) {
@@ -42,6 +51,16 @@ class User
 
     private function isUsernameTaken($username_IN)
     {
+        /*
+        Checks if username is taken.
+
+        Returns 
+        - TRUE if its unique
+        - FALSE if username exist in DB already
+        - Error messages on failed operations
+
+        */
+
         $query_string = "SELECT Username FROM Users WHERE Username = :username_IN";
 
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -74,6 +93,16 @@ class User
 
     private function isEmailTaken($email_IN)
     {
+        /*
+        Checks if email is taken.
+
+        Returns 
+        - TRUE if its unique
+        - FALSE if email exist in DB already
+        - Error messages on failed operations
+
+        */
+
         $query_string = "SELECT Email FROM Users WHERE Email = :email_IN";
 
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -105,6 +134,13 @@ class User
 
     private function insertUserToDb($username_IN, $password_IN, $email_IN, $roleId_IN)
     {
+        /*
+        Inserts user to DB.
+        Returns 
+        - Confirm message on success
+        - Error messages on failed operations
+
+        */
         $query_string = "INSERT INTO Users(Username, Password, Email, Roles_Id) VALUES(:username_IN , :password_IN, :email_IN, :roleId_IN)";
 
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -148,14 +184,22 @@ class User
     {
 
         /*
+        Get User from DB based on combination/s of column and value
 
-        Column = which column to match with value
-        Value  = which value match with column
+        $column_IN = which column to match with value
+        $value_IN  = which value to match with column
 
         Example:
         getUser(Username, "Janne Ball") will return a User with username "Janne Ball". 
 
-         */
+        You can also use two SQL-WHERE clauses, hence $column and $column2 etc.
+
+        Returns
+        - User on success
+        - FALSE if there's no match in DB
+        - FALSE and Error messages on failed operations
+
+        */
 
         // Init twoColumns
         $twoColumns = false;
@@ -254,6 +298,15 @@ class User
 
     public function loginUser($username_IN, $password_IN)
     {
+        /*
+        Login user, and create token.
+
+        Returns
+        - Token on success
+        - Error message if something went wrong
+
+        */
+
         $encryptedPassword = md5($password_IN);
         $return = $this->getUser("Username", $username_IN, "Password", $encryptedPassword);
         if ($return == true) {
@@ -269,7 +322,13 @@ class User
 
     private function createToken($userId_IN, $username_IN)
     {
-        // Create unique token
+        /* Create a unique token
+
+        Returns 
+        - Token on Success
+        - Error messages on failed operations
+
+        */
         $uniqueToken = md5($username_IN . uniqid('', true) . time());
 
         $query_string = "INSERT INTO Tokens(Users_Id, Token) VALUES (:userId_IN, :token)";
@@ -299,6 +358,14 @@ class User
 
     private function deleteToken($userId_IN)
     {
+        /*
+        Deletes token
+
+        Return
+        - Confirm message on Success
+        - Error messages on failed operations
+
+        */
 
         $query_string = "DELETE FROM Tokens WHERE Users_Id = :userId_IN";
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -325,8 +392,17 @@ class User
 
     public function getToken($userId_IN, $username_IN)
     {
-        // If token exist and isn't valid, then checkToken() returns "deleted"
-        // If token doesn't exist, then checkToken returns FALSE
+        /*
+        Get users token whether its already created or not
+        
+        checktoken() will return:
+        - A message, "deleted" if token exist but isn't valid
+        - FALSE If token doesn't exist
+
+        getToken() Returns 
+        - Token as a string
+
+        */
 
         if ($this->checkToken($userId_IN) == "deleted") {
             // Token did exist but was deleted. Create a new one
@@ -342,9 +418,10 @@ class User
     private function checkToken($userId_IN)
     {
         /* 
+        Checks if token is valid or not.
 
         If token:
-        exist and isn't valid  ->   checkToken() returns "deleted"
+        exist and isn't valid   ->   checkToken returns "deleted"
         doesn't exist           ->   checkToken returns FALSE
 
         */
@@ -383,9 +460,16 @@ class User
 
     public function validateToken($token_IN)
     {
-        // If token exists and is active = return an updated token
-        // If token isn't active. Return errormessage and false
-        // If token doesn't exist. Return errormessage and false
+        /*
+        Checks if token is valid based on our validity time ($this->token_validity_time)
+
+        Returns
+        - An updated token through updateToken() if token exists and is active
+        - Error message and FALSE if token isnt active or doesnt exist
+        - Error messages on failed operations
+
+        */
+
 
 
         // Check if token is active
@@ -439,6 +523,16 @@ class User
 
     private function updateToken($token_IN)
     {
+        /*
+        Update token time on success
+
+        Returns
+        - Token on success
+        - Error messages on failed operations
+
+        */
+
+
         $query_string = "UPDATE TokensSET Date_Updated = CURRENT_TIMESTAMP WHERE (Token = :token_IN)";
         $statementHandler = $this->database_handler->prepare($query_string);
 
@@ -464,7 +558,15 @@ class User
 
     public function checkTokenRole($token_IN)
     {
-        // Check role from token id
+        /*
+        Check user role from token
+
+        Returns
+        - Role name on success
+        - Error message if token doesnt exist
+        - Error messages on failed operations
+
+        */
 
         $query_string = "SELECT Roles.Name AS Role FROM Tokens JOIN Users ON Users_Id = Users.Id JOIN Roles ON Roles_Id = Roles.Id WHERE Token = :token_IN";
         $statementHandler = $this->database_handler->prepare($query_string);
@@ -493,44 +595,56 @@ class User
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function getUserFromToken($token_IN){
-          // Get user id from Token
+    public function getUserFromToken($token_IN)
+    {
 
-          $query_string = "SELECT Users.Id FROM Users JOIN Tokens on Users.Id = Users_Id WHERE Token = :token_IN";
-          $statementHandler = $this->database_handler->prepare($query_string);
-          if ($statementHandler !== false) {
-  
-              $statementHandler->bindParam(":token_IN", $token_IN);
-              $execSuccess = $statementHandler->execute();
-  
-              if ($execSuccess === true) {
-                  $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
-                  if (!empty($result)) {
-                      // Return user Id
-                      return $result['Id'];
-                  } else {
-                      $errorMessage = "Token doesn't exist";
-                      $this->errorHandler($errorMessage);
-                      return false;
-                  }
-              } else {
-                  $errorMessage = "Execute Failed";
-                  $errorLocation = "getUserFromToken() in Users.php";
-              }
-          } else {
-              $errorMessage = "Statementhandler Failed";
-              $errorLocation = "getUserFromToken() in Users.php";
-          }
-          return $this->errorHandler($errorMessage, $errorLocation);
+        /*
+        Get user id from token
+
+        Returns
+        - User id on success
+        - Error message if token doesnt exist
+        - Error messages on failed operations
+
+        */
+
+        $query_string = "SELECT Users.Id FROM Users JOIN Tokens on Users.Id = Users_Id WHERE Token = :token_IN";
+        $statementHandler = $this->database_handler->prepare($query_string);
+        if ($statementHandler !== false) {
+
+            $statementHandler->bindParam(":token_IN", $token_IN);
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+                if (!empty($result)) {
+                    // Return user Id
+                    return $result['Id'];
+                } else {
+                    $errorMessage = "Token doesn't exist";
+                    $this->errorHandler($errorMessage);
+                    return false;
+                }
+            } else {
+                $errorMessage = "Execute Failed";
+                $errorLocation = "getUserFromToken() in Users.php";
+            }
+        } else {
+            $errorMessage = "Statementhandler Failed";
+            $errorLocation = "getUserFromToken() in Users.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    private function getCurrentTimeFromDB(){
+    private function getCurrentTimeFromDB()
+    {
+        // Get current timestamp from server
         $query_string = "SELECT CURRENT_TIMESTAMP";
 
         $statementHandler = $this->database_handler->prepare($query_string);
-        if($statementHandler !== false){
+        if ($statementHandler !== false) {
             $execSuccess = $statementHandler->execute();
-            if($execSuccess === true){
+            if ($execSuccess === true) {
                 $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
                 return $result['CURRENT_TIMESTAMP'];
             }
@@ -539,6 +653,8 @@ class User
 
     private function errorHandler($message_IN, $errorLocation_IN = 0)
     {
+        // Return error messages in json format
+
         $returnObject = new stdClass;
 
         $returnObject->message = $message_IN;

@@ -1,39 +1,50 @@
 <?php
 include("../../objects/Users.php");
 
-// test_data
-// $_POST['username'] = "Test";
-// $_POST['password'] = "password";
-// $_POST['email'] = "test@test.se";
-// $_POST['role_id'] = 1;
+/*
+Insert user to DB if:
+
+    - No field is empty
+    - Username isnt taken 
+    - Email isnt taken
+
+You're also able to set user roles based on DB.
+A message will be returned on success.
+*/
 
 
 // Init errors
 $error = false;
 $errorMessages = "";
 
+// Set variables
+$username = isset($_POST['username']) ? $_POST['username'] : "";
+$password = isset($_POST['password']) ? $_POST['password'] : "";
+$email    = isset($_POST['email'])    ? $_POST['email']    : "";
+$roleId   = isset($_POST['role_id'])  ? $_POST['role_id']  : "";
+
 // Check for empty values
-if (empty($_POST['username'])) {
+if (empty($username)) {
     $error = true;
     $errorMessages = "Username is empty! ";
 }
 
-if (empty($_POST['password'])) {
+if (empty($password)) {
     $error = true;
     $errorMessages .= "Password is empty! ";
 }
 
-if (empty($_POST['email'])) {
+if (empty($email)) {
     $error = true;
     $errorMessages .= "Email is empty! ";
 }
 
-if (empty($_POST['role_id'])) {
+if (empty($roleId)) {
     $error = true;
     $errorMessages .= "Role_id is empty! ";
 }
 
-if($error == true){
+if ($error == true) {
     echo $errorMessages;
     die;
 }
@@ -42,4 +53,4 @@ if($error == true){
 // Add user to DB and return a message.
 $user_handler = new User($dbh);
 
-echo $user_handler->addUser($_POST['username'], $_POST['password'], $_POST['email'], $_POST['role_id']);
+echo $user_handler->addUser($username, $password, $email, $roleId);

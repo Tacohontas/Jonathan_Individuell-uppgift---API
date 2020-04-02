@@ -2,10 +2,12 @@
 include("../../objects/Carts.php");
 include("../../objects/Users.php");
 
+
+
+
+// Create handlers
 $cart_handler = new Cart($dbh);
 $user_handler = new User($dbh);
-
-
 
 
 $token = isset($_POST['token']) ? $_POST['token'] : "";
