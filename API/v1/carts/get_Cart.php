@@ -4,7 +4,7 @@ include("../../objects/Users.php");
 
 /*
     Admin can get any cart. Cart id is required
-    Other users can only get their own cart by token.
+    Regular users can only get their own cart by token. Not by Cart Id.
 */
 
 
@@ -54,11 +54,11 @@ if (!empty($_POST['Id'])) {
                 $userId = $user_handler->getUserFromToken($_POST['token']);
                 if (!empty($userId)) {
                     print_r($cart_handler->getTotal($_POST['Id']));
-                    print_r($cart_handler->getProductsFromCart($userId));
+                    print_r($cart_handler->getProductsFromCart($_POST['Id']));
                     return;
                 }
             } else {
-                echo "Cart doesn't exist.";
+                echo "No active carts found!";
                 die;
             }
         }
@@ -79,11 +79,12 @@ if ($user_handler->validateToken($_POST['token']) !== false) {
         if ($cart_handler->checkCart($userId) !== false) {
             $returnObject = new stdClass;
             // Get cart from checkCart()
-            $returnObject->Cart = $cart_handler->checkCart($userId);
+            $cart = $cart_handler->checkCart($userId);
+            $returnObject->Cart = $cart;
             // Get products in Cart from getProductsInCart()
-            $returnObject->Products = $cart_handler->getProductsFromCart($userId);
+            $returnObject->Products = $cart_handler->getProductsFromCart($cart['Id']);
             // Get carts total from getTotal()
-            $returnObject->Total = $cart_handler->getTotal($userId);
+            $returnObject->Total = $cart_handler->getTotal($cart['Id']);
             // return json
             echo json_encode($returnObject);
             die;

@@ -39,9 +39,9 @@ if ($user_handler->validateToken($token) !== false) {
     if (!empty($userId)) {
         $cart = $cart_handler->checkCart($userId);
         if (!empty($cart)) {
+
             //Cart exist, checkout with id from cart
             if($cart_handler->checkoutCart($cart['Id']) === true){
-                
                 // return purchase
                 $last_inserted_id = $cart_handler->getLastInsertedId();
                 $purchase = $purchase_handler->getPurchase($last_inserted_id);
@@ -51,6 +51,8 @@ if ($user_handler->validateToken($token) !== false) {
                     die;
                 }
             }
+        } else {
+            echo "You have no cart to check out.";
         }
       
     }

@@ -70,8 +70,11 @@ class Cart
                 return "Cart doesn't exist.";
             }
 
+            // Set Cart Id to $cartId
+            $cartId = $cart['Id'];
+
             // Check if product exists in cart
-            $result = $this->getProductsFromCart($userId_IN);
+            $result = $this->getProductsFromCart($cartId);
 
             $match = false;
             for ($i = 0; $i < count($result); $i++) {
@@ -90,7 +93,7 @@ class Cart
 
             if ($statementHandler !== false) {
 
-                $cartId = $cart['Id'];
+
 
                 $statementHandler->bindParam(":productId_IN", $productId_IN);
                 $statementHandler->bindParam(":cartId", $cartId);
@@ -101,7 +104,7 @@ class Cart
                     // Product successfully removed from cart.
 
                     // check if cart is empty, if yes = delete.
-                    $result = $this->getProductsFromCart($userId_IN);
+                    $result = $this->getProductsFromCart($cartId);
                     if (empty($result)) {
                         // Delete cart
                         $this->deleteCart($cartId);
@@ -366,16 +369,16 @@ class Cart
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function deleteCart($id_IN)
+    public function deleteCart($cartId_IN)
     {
         // Deletes cart if it's not checked out.
 
-        $query_string = "DELETE FROM Carts WHERE Id = :id_IN";
+        $query_string = "DELETE FROM Carts WHERE Id = :cartId_IN";
         $statementHandler = $this->database_handler->prepare($query_string);
 
         if ($statementHandler !== false) {
 
-            $statementHandler->bindParam(":id_IN", $id_IN);
+            $statementHandler->bindParam(":cartId_IN", $cartId_IN);
 
             $execSuccess = $statementHandler->execute();
 
@@ -426,9 +429,9 @@ class Cart
     {
 
         // Returns false if cart doesnt exist
-        // Get user_id and then redirect to checkCart();
+        // Returns cart if cart exists.
 
-        $query_string = "SELECT User_Id FROM Carts WHERE Id = :cartId_IN";
+        $query_string = "SELECT Id, User_Id, Date_Created, Date_Updated FROM Carts WHERE Id = :cartId_IN AND Checkout_Done = FALSE";
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
@@ -442,7 +445,7 @@ class Cart
 
                 if (!empty($result['User_Id']) == true) {
                     // Return result
-                    return $this->checkCart($result['User_Id']);
+                    return $result;
                 } else {
                     return false;
                 }
@@ -457,15 +460,23 @@ class Cart
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function getProductsFromCart($userId_IN)
+    public function getProductsFromCart($cartId_IN, $checkout_Done = 0)
     {
+        // Will get products from carts that haven't been checked out by default.
 
-        $query_string = "SELECT Products.Id, Products.Name, Products.Brand, Products.Price, Products.Color FROM ProductsInCarts JOIN Carts ON Carts.Id = Carts_Id JOIN Products ON Products.Id = Products_Id WHERE User_Id = :userId_IN";
+        $query_string = "SELECT Products.Id, Products.Name, Products.Brand, Products.Price, Products.Color FROM ProductsInCarts JOIN Carts ON Carts.Id = Carts_Id JOIN Products ON Products.Id = Products_Id WHERE Carts_Id = :cartId_IN ";
+
+        if ($checkout_Done > 0) {
+            $query_string .= "AND Checkout_Done = TRUE";
+        } else {
+            $query_string .= "AND Checkout_Done = FALSE";
+        }
+
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
         if ($statementHandler !== false) {
-            $statementHandler->bindParam(":userId_IN", $userId_IN);
+            $statementHandler->bindParam(":cartId_IN", $cartId_IN);
             $execSuccess = $statementHandler->execute();
 
             if ($execSuccess === true) {

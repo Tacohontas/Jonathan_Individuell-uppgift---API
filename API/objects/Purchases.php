@@ -35,11 +35,11 @@ class Purchase
                 }
             } else {
                 $errorMessage = "Execute failed";
-                $errorLocation = "getPurchase() in Carts.php";
+                $errorLocation = "getPurchase() in Purchases.php";
             }
         } else {
             $errorMessage = "Execute failed";
-            $errorLocation = "getPurchase() in Carts.php";
+            $errorLocation = "getPurchase() in Purchases.php";
         }
         return $this->errorHandler($errorMessage, $errorLocation);
     }
@@ -68,11 +68,42 @@ class Purchase
                 }
             } else {
                 $errorMessage = "Execute failed";
-                $errorLocation = "getUsersPurchases() in Carts.php";
+                $errorLocation = "getUsersPurchases() in Purchases.php";
             }
         } else {
             $errorMessage = "Execute failed";
-            $errorLocation = "getUsersPurchases() in Carts.php";
+            $errorLocation = "getUsersPurchases() in Purchases.php";
+        }
+        return $this->errorHandler($errorMessage, $errorLocation);
+    }
+
+    public function getAllPurchases()
+    {
+
+        // Returns all purchases.
+
+        $query_string = "SELECT Id, Carts_Id, Date_Checkout, Total FROM Purchases";
+
+        $statementHandler = $this->database_handler->prepare($query_string);
+
+        if ($statementHandler !== false) {
+
+            $execSuccess = $statementHandler->execute();
+
+            if ($execSuccess === true) {
+                $result = $statementHandler->fetchAll(PDO::FETCH_ASSOC);
+                if (!empty($result)) {
+                    return $result;
+                } else {
+                    return false;
+                }
+            } else {
+                $errorMessage = "Execute failed";
+                $errorLocation = "getAllPurchases() in Purchases.php";
+            }
+        } else {
+            $errorMessage = "Execute failed";
+            $errorLocation = "getAllPurchases() in Purchases.php";
         }
         return $this->errorHandler($errorMessage, $errorLocation);
     }

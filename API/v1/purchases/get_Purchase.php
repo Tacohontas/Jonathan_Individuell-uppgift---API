@@ -1,10 +1,12 @@
 <?php
 include("../../objects/Purchases.php");
 include("../../objects/Users.php");
+include("../../objects/Carts.php");
 
 
 $purchase_handler = new Purchase($dbh);
 $user_handler = new User($dbh);
+$cart_handler = new Cart($dbh);
 
 $token = isset($_POST['token']) ? $_POST['token'] : "";
 $purchaseId = isset($_POST['purchase_id']) ? $_POST['purchase_id'] : "";
@@ -38,8 +40,13 @@ if ($user_handler->checkTokenRole($_POST['token']) == "Admin") {
     if ($user_handler->validateToken($_POST['token']) !== false) {
         // Token is valid
         $purchase = $purchase_handler->getPurchase($purchaseId);
-        if ($purchase !== false) {
-            return print_r($purchase);
+        if ($purchase !== false) {;
+            // Return purchase
+            // We use "1" in the getProductsFromCart-method to get products from checkouts
+            $productsInPurchase = $cart_handler->getProductsFromCart($purchase['Carts_Id'], 1);
+            print_r($purchase);
+            print_r($productsInPurchase);
+            return;
         } else {
             echo "No purchase found!";
             die;
@@ -62,7 +69,7 @@ if ($user_handler->validateToken($_POST['token']) !== false) {
             $userPurchases = $purchase_handler->getUsersPurchases($userId);
             if ($userPurchases !== false) {
                 //$userPurchases will be an array of purchases if user has more than one purchase.
-            
+
                 // Check if purchase id belongs to user with a loop.
                 $match = false;
                 for ($i = 0; $i < count($userPurchases); $i++) {
@@ -73,12 +80,17 @@ if ($user_handler->validateToken($_POST['token']) !== false) {
 
                 if ($match == false) {
                     // Purchase dont belong to user
-                    echo "No purchase found!";
+                    echo "No purchases found by this user + Cart ID!";
                     return;
                 }
 
                 // Get purchase to return
-                return print_r($purchase_handler->getPurchase($purchaseId));
+                // We use "1" in the getProductsFromCart-method to get products from checkouts
+                $purchase = $purchase_handler->getPurchase($purchaseId, 1);
+                $productsInPurchase = $cart_handler->getProductsFromCart($purchase['Carts_Id'], 1);
+                print_r($purchase);
+                print_r($productsInPurchase);
+                return;
             }
         }
     }
