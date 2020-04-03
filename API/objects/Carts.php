@@ -200,6 +200,7 @@ class Cart
         /* 
 
         Check if cart exists and is valid (updated within 2 days)
+        Will only get carts that isnt checkout'ed
 
         If cart:
         exists and is valid     -> checkCart() returns cart
