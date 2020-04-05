@@ -2,7 +2,15 @@
 include("../../objects/Products.php");
 include("../../objects/Users.php");
 
+/*
+    Get & sort a bunch of products!
+    Importanteu! You need to set an limit and offset for pagination causes.
 
+    Returns
+    - Result on success
+    - Error message on failed operations or faulty inputs.
+
+*/
 
 // Input variables
 $token = isset($_POST['token']) ? $_POST['token'] : "";
@@ -11,12 +19,9 @@ $order = isset($_POST['order']) ? $_POST['order'] : "";
 $limit = isset($_POST['limit']) ? $_POST['limit'] : "";
 $offset = isset($_POST['offset']) ? $_POST['offset'] : "";
 
-
-
 // Init errors
 $error = false;
 $errorMessages = "";
-
 
 // Check for empty values
 // Offset doesn't need a value, it will be set to 0 if it's empty.
@@ -48,7 +53,7 @@ $product_handler = new Product($dbh);
 
 // Check if token is valid
 
-if ($user_handler->validateToken($_POST['token']) !== false) {
+if ($user_handler->validateToken($token) !== false) {
     // Token is valid, get sorted result 
     // Set Limit and offset based on input
     print_r($product_handler->getAllProducts($limit, $offset, $column, $order));

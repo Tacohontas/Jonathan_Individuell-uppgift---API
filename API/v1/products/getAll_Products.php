@@ -3,12 +3,21 @@ include("../../objects/Products.php");
 include("../../objects/Users.php");
 
 
+/*
+    Get all products!
+    You need to set an limit and offset for pagination causes.
+
+    Returns
+    - Result on success
+    - Error message on failed operations or faulty inputs.
+
+*/
+
+
 // Input variables
 $token = isset($_POST['token']) ? $_POST['token'] : "";
 $limit = isset($_POST['limit']) ? $_POST['limit'] : "";
 $offset = isset($_POST['offset']) ? $_POST['offset'] : "";
-
-
 
 // Init errors
 $error = false;
@@ -30,6 +39,7 @@ if ($error == true) {
     die;
 }
 
+// Create handlers
 $user_handler = new User($dbh);
 $product_handler = new Product($dbh);
 
