@@ -3,7 +3,21 @@ include("../../objects/Purchases.php");
 include("../../objects/Users.php");
 include("../../objects/Carts.php");
 
+/* 
 
+    Get purchase by purchase Id. 
+    Users can only get their own purchases
+    Admins can get any purchase by puchase id.
+
+    - Need valid token
+    - No empty values is allowed
+
+    If purchase doesnt exist = return error message
+    If purchase exist        = return purchase
+
+*/
+
+// Create handlers
 $purchase_handler = new Purchase($dbh);
 $user_handler = new User($dbh);
 $cart_handler = new Cart($dbh);
@@ -20,12 +34,10 @@ if (empty($token)) {
     $error = true;
     $errorMessages = "token is empty! ";
 }
-
-// if (empty($purchaseId)) {
-//     $error = true;
-//     $errorMessages .= "Purchase Id is empty! ";
-// }
-
+if (empty($purchaseId)) {
+    $error = true;
+    $errorMessages = "purchase id is empty! ";
+}
 if ($error == true) {
     echo $errorMessages;
     die;
@@ -34,10 +46,10 @@ if ($error == true) {
 // Check if user is Admin
 // Admins are able to get anyone's purchase by id
 
-if ($user_handler->checkTokenRole($_POST['token']) == "Admin") {
+if ($user_handler->checkTokenRole($token) == "Admin") {
     // User is admin, check if token is valid
 
-    if ($user_handler->validateToken($_POST['token']) !== false) {
+    if ($user_handler->validateToken($token) !== false) {
         // Token is valid
         $purchase = $purchase_handler->getPurchase($purchaseId);
         if ($purchase !== false) {;
@@ -56,16 +68,16 @@ if ($user_handler->checkTokenRole($_POST['token']) == "Admin") {
 
 // Regular users can only get their own purchase by id.
 // Validate token
-if ($user_handler->validateToken($_POST['token']) !== false) {
+if ($user_handler->validateToken($token) !== false) {
     // Token is valid, get user_Id
-    $userId = $user_handler->getUserFromToken($_POST['token']);
+    $userId = $user_handler->getUserFromToken($token);
     if (!empty($userId)) {
 
 
-        if ($user_handler->validateToken($_POST['token']) !== false) {
+        if ($user_handler->validateToken($token) !== false) {
             // Token is valid
 
-            // Get all of Users purchases to see if purchase_id belong to User.
+            // Get all of Users purchases to see if purchase id belong to User.
             $userPurchases = $purchase_handler->getUsersPurchases($userId);
             if ($userPurchases !== false) {
                 //$userPurchases will be an array of purchases if user has more than one purchase.

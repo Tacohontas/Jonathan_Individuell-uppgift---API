@@ -83,7 +83,7 @@ class Purchase
     {
         /*
 
-        Get all of the purchases done
+        Get all of the purchases
 
         Returns
         - All purchases on success

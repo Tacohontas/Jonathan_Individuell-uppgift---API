@@ -202,7 +202,7 @@ class Product
 
             if ($execSuccess === true) {
                 // fetch result
-                $result = $statementHandler->fetch(PDO::FETCH_ASSOC);
+                $result = $statementHandler->fetchAll(PDO::FETCH_ASSOC);
 
                 if (!empty($result)) {
                     // return Product

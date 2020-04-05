@@ -118,9 +118,17 @@ INSERT INTO Users(Username, Password, Email, Roles_Id) VALUE ("User", "5f4dcc3b5
 
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Aero Pro Drive", 2400, "Babolat", "Yellow");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pure Drive Team", 2100, "Babolat", "Blue");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pure Control", 2700, "Babolat", "Red");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pure Storm", 2500, "Babolat", "Orange");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pro Staff", 3100, "Wilson", "Orange");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pro Team", 2600, "Wilson", "Yellow");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Ncode N4", 2900, "Wilson", "Red");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Ncode N3", 2600, "Wilson", "Black");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pro Tour", 2800, "Prince", "Black");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Rebel 20", 2800, "Prince", "Purple");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("O3 Silver", 2700, "Prince", "Silver");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("O3 Red", 2900, "Prince", "Red");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("MicroGEL Extreme Pro", 2600, "Head", "Black");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Crossbow 10", 2900, "Head", "White");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Flexpoint 10", 2700, "Head", "Gray");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Protector", 2200, "Head", "Yellow");

@@ -21,10 +21,12 @@ $user_handler = new User($dbh);
 $product_handler = new Product($dbh);
 
 // Create variables
-$name = $_POST['name'];
-$price = $_POST['price'];
-$brand = $_POST['brand'];
-$color = $_POST['color'];
+$token = isset($_POST['token']) ? $_POST['token'] : "";
+$name  = isset($_POST['name'])  ? $_POST['name']  : "";
+$price = isset($_POST['price']) ? $_POST['price'] : "";
+$brand = isset($_POST['brand']) ? $_POST['brand'] : "";
+$color = isset($_POST['color']) ? $_POST['color'] : "";
+
 
 // Init errors
 $error = false;
