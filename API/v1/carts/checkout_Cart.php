@@ -1,19 +1,29 @@
 <?php
-/*
-    ADD DESC
-*/
-
 include("../../objects/Carts.php");
 include("../../objects/Users.php");
 include("../../objects/Purchases.php");
 
+/*
+
+Checkout cart and add to purchase table in DB if:
+
+    - No field is empty
+    - Token is valid
+    - Cart is valid and has products in it. (Cart automatically deletes if it's empty)
+
+Will get an overview over purchase details on success.
+Error message/s on failed operations
+
+*/
+
+// Create handlers
 $cart_handler = new Cart($dbh);
 $user_handler = new User($dbh);
 $purchase_handler = new Purchase($dbh);
 
+// Create variables
 $token = isset($_POST['token']) ? $_POST['token'] : "";
 $cartId = isset($_POST['Id']) ? $_POST['Id'] : "";
-
 
 // Init errors
 $error = false;
@@ -24,7 +34,6 @@ if (empty($token)) {
     $error = true;
     $errorMessages = "token is empty! ";
 }
-
 if ($error == true) {
     echo $errorMessages;
     die;

@@ -2,16 +2,26 @@
 include("../../objects/Carts.php");
 include("../../objects/Users.php");
 
+/*
 
+Add product to user's shopping cart if:
+
+    - No field is empty
+    - Token is valid
+
+Will get A confirm message on success
+Error message/s on failed operations
+
+*/
 
 
 // Create handlers
 $cart_handler = new Cart($dbh);
 $user_handler = new User($dbh);
 
-
-$token = isset($_POST['token']) ? $_POST['token'] : "";
-$productId = isset($_POST['Id']) ? $_POST['Id'] : "";
+// Create variables
+$token     = isset($_POST['token']) ? $_POST['token'] : "";
+$productId = isset($_POST['Id'])    ? $_POST['Id']    : "";
 
 
 
