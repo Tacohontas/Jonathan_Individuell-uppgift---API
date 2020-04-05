@@ -2,8 +2,31 @@
 include("../../objects/Products.php");
 include("../../objects/Users.php");
 
-if (empty($_POST['token'])) {
-    echo "Need token";
+
+// Input variables
+$token = isset($_POST['token']) ? $_POST['token'] : "";
+$limit = isset($_POST['limit']) ? $_POST['limit'] : "";
+$offset = isset($_POST['offset']) ? $_POST['offset'] : "";
+
+
+
+// Init errors
+$error = false;
+$errorMessages = "";
+
+// Check for empty fields.
+// Offset doesn't need a value, it will be set to 0 if it's empty.
+
+if (empty($token)) {
+    $error = true;
+    $errorMessages .= "Token is empty! ";
+}
+if (empty($limit)) {
+    $error = true;
+    $errorMessages .= "limit is empty! ";
+}
+if ($error == true) {
+    echo $errorMessages;
     die;
 }
 
@@ -12,7 +35,7 @@ $product_handler = new Product($dbh);
 
 // Check if token is valid
 
-if ($user_handler->validateToken($_POST['token']) !== false) {
+if ($user_handler->validateToken($token) !== false) {
     // Token is valid, print result
-    print_r($product_handler->getAllProducts());
+    print_r($product_handler->getAllProducts($limit, $offset));
 }

@@ -222,12 +222,13 @@ class Product
         return $this->errorHandler($errorMessage, $errorLocation);
     }
 
-    public function getAllProducts($column_IN = 0, $order_IN = 0)
+    public function getAllProducts($limit_IN, $offset_IN = 0, $column_IN = 0, $order_IN = 0)
     {
 
         /*
         Get all products!
-        + sort by column if $column_IN & $order_IN is used.
+        (+ sort by column if $column_IN & $order_IN is used.)
+        You need to set an limit and offset for pagination causes.
 
         Returns
         - Result on success
@@ -269,15 +270,21 @@ class Product
             };
         }
 
+        // Add sort to sql-query
         if ($order_IN !== 0) {
             $query_string .= $order_IN;
         };
+
+        // Add limit and offset to query
+
+        $query_string .= " LIMIT :limit_IN OFFSET :offset_IN";
 
         $statementHandler = $this->database_handler->prepare($query_string);
 
         if ($statementHandler !== false) {
 
-
+            $statementHandler->bindParam(":limit_IN", $limit_IN, PDO::PARAM_INT);
+            $statementHandler->bindParam(":offset_IN", $offset_IN, PDO::PARAM_INT);
             $execSuccess = $statementHandler->execute();
 
             if ($execSuccess === true) {
