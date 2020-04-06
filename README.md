@@ -1,9 +1,11 @@
 # Jonathan's E-commerce API 
 
-This is a school assignment task:
-"Make an API for an e-commerce platform.<br>  
-You should be able to manage, fetch , and products. <br>
-You should also be able to manage users."
+This API is made for a school assignment task:<br>
+```
+Make an API for an e-commerce platform.
+You should be able to manage, fetch , and products.
+You should also be able to manage users.
+```
 
 ## Prerequisities
 
