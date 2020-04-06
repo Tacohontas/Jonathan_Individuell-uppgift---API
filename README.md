@@ -1,11 +1,12 @@
 # Jonathan's E-commerce API 
 
-This is a school assignment task: Making an API for an e-commerce platform. 
-You should be able to manage, fetch , and products. You should also be able to manage users.
+This is a school assignment task: Make an API for an e-commerce platform.<br>  
+You should be able to manage, fetch , and products. <br>
+You should also be able to manage users.
 
 ## Prerequisities
 
-This API is made with PHP and MariaDB (mySQL).
+This API is made with PHP and MariaDB (mySQL).<br>
 I've used XAMPP while developing this API to run a local server with these prerequisities.
 
 ## Install
@@ -19,7 +20,7 @@ Import this sql-script into your prefered administration tool.
 
 ## Test data - Users
 
-There are two registrered users. One admin and one regular user.
+There are two registrered users: One admin and one regular user.<br>
 These two users has different roles and rights. You can read more about this in the endpoints section.
 
 Admin has the rights to manage products, users, shoppingcart and purchases etc:
@@ -39,10 +40,10 @@ Email: User@myCompany.com
 
 ## Coding standard
 
-Class names: MUST be singular form and ```PascalCase```.
-Methods and functions: ```camelcase```.
-Instances of a class and SQLqueries: ```snake_case``` and end with ```_handler``` example: ```$user_handler = new User```.
-Parameters in functions and methods: ```camelCase``` and MUST end with ```_IN``` example: ```isUsernameTaken($username_IN)```.
+Class names: MUST be singular form and ```PascalCase```.<br>
+Methods and functions: ```camelcase```.<br>
+Instances of a class and SQLqueries: ```snake_case``` and end with ```_handler``` example: ```$user_handler = new User```.<br>
+Parameters in functions and methods: ```camelCase``` and MUST end with ```_IN``` example: ```isUsernameTaken($username_IN)```.<br>
 
 Every other name should be in camelCase if nothing else is set.
 
@@ -50,7 +51,7 @@ Every other name should be in camelCase if nothing else is set.
 
 ### Tokens
 Every end point except for ```login_User``` needs an active token to work.
-Token gets invalid if user hasn't done any actions the last 15mins.
+Token gets invalid if user hasn't done any actions the last 15mins.<br>
 User has to login again to get a new token.
 
 ### Users
@@ -121,15 +122,15 @@ Returns:
 ## get_Product
 Get product/s from DB based on a combination of column and value
 
-Column = which column to match with value
-Value  = which value match with column
+Column = which column to match with value<br>
+Value  = which value match with column<br>
 
 Example:
 ```getProduct(Color, "Yellow")``` will return a product/s with color yellow. 
 
 ## getAll_Products
 
-Get all products!
+Get all products!<br>
 You need to set an limit and offset for pagination causes.
 
 Returns:
@@ -138,7 +139,7 @@ Returns:
 
 ## sort_Products
 
-Get & sort products!
+Get & sort products!<br>
 You need to set an limit and offset for pagination causes.
 
 Returns:
@@ -161,7 +162,7 @@ Add product to user's shopping cart if:
 - No field is empty
 - Token is valid
 
-Will get A confirm message on success.
+Will get A confirm message on success.<br>
 Error message/s on failed operations.
 
 ## checkout_Cart
@@ -171,7 +172,7 @@ Checkout cart and add to purchase table in DB if:
 - Token is valid
 - Cart is valid and has products in it. (Cart automatically deletes if it's empty)
 
-Will get an overview over purchase details on success.
+Will get an overview over purchase details on success.<br>
 Error message/s on failed operations
 
 ## empty_Cart
@@ -186,8 +187,8 @@ Returns
 - Error message/s on failed operations
 
 ## get_Cart
-Get cart:
-Admin can get any cart. Cart id is required
+Get cart:<br>
+Admin can get any cart. Cart id is required<br>
 Regular users can only get their own cart by token. Not by Cart Id.
 
 Returns
@@ -204,26 +205,26 @@ Returns
 - Error messages on failed operations
 
 ## removeFrom_Cart
-Removes product from shopping cart.
-If cart doesnt exist                        = returns error message
-If cart is empty after product is removed   = delete cart
-If product is removed and cart is not empty = Returns a confirmation message.
+Removes product from shopping cart.<br>
+If cart doesnt exist                        = returns error message<br>
+If cart is empty after product is removed   = delete cart<br>
+If product is removed and cart is not empty = Returns a confirmation message.<br>
 
 ## get_Purchase
-Get purchase by purchase Id. 
-Users can only get their own purchases
-Admins can get any purchase by puchase id.
+Get purchase by purchase Id. <br>
+Users can only get their own purchases.<br>
+Admins can get any purchase by puchase id.<br>
 
 - Need valid token
 - No empty values is allowed
 
-If purchase doesnt exist = return error message
+If purchase doesnt exist = return error message<br>
 If purchase exist        = return purchase
 
 ## getAll_Purchases
-Get all the purchases
-Users can only get their own purchases
-Admins can get any purchase by puchase id.
+Get all the purchases  <br>
+Users can only get their own purchases  <br>
+Admins can get any purchase by puchase id. <br> 
 
 - Need valid token
 - No empty values is allowed
