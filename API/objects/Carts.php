@@ -190,7 +190,12 @@ class Cart
             $execSuccess = $statementHandler->execute();
 
             if ($execSuccess === true) {
-                return $statementHandler->fetchAll(PDO::FETCH_ASSOC);
+                $result = $statementHandler->fetchAll(PDO::FETCH_ASSOC);
+                if(!empty($result)){
+                    return $result;
+                } else {
+                    return "No carts found.";
+                }
             }
         }
     }

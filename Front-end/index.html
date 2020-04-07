@@ -28,17 +28,17 @@
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
-        $(document).ready(() => {
+         $(document).ready(() => {
             $(".form").on("submit", (e) => {
                 e.preventDefault();
                 var data = $(e.target).serialize();
                 if ($(e.target).find('input[name="method"]:checked').val() === "get") {
                     $.get($(e.target).find('input[name="url"]').val(), data, (data) => {
-                        $("#serverResponse").val(data);
+                        $("#serverResponse").val(JSON.stringify(data));
                     });
                 } else {
                     $.post($(e.target).find('input[name="url"]').val(), data, (data) => {
-                        $("#serverResponse").val(data);
+                        $("#serverResponse").val(JSON.stringify(data));
                     });
                 }
             });

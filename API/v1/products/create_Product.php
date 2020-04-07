@@ -16,6 +16,8 @@ Returns:
 
 */
 
+
+
 // Create handlers
 $user_handler = new User($dbh);
 $product_handler = new Product($dbh);

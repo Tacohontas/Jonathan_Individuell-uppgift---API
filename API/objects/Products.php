@@ -43,14 +43,14 @@ class Product
 
                 if ($execSuccess === true) {
 
-                    // Get Id from last inserted value in DB. (Our inserted user)
+                    // Get Id from last inserted value in DB. (Our inserted product)
                     $last_inserted_id = $this->database_handler->lastInsertId();
 
-                    // Fetch user with our id.
+                    // Fetch product with our id.
                     $return = $this->getProduct("Id", $last_inserted_id);
 
                     // return Product name
-                    return "Product '{$return['Name']}' created";
+                    return "Product '".$return[0]['Name']."' created";
                 } else {
                     $errorMessage = "Execute Failed";
                     $errorLocation = "createProduct() in Products.php";
