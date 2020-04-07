@@ -221,7 +221,7 @@ Returns
 - Error messages on failed operations
 
 ## removeFrom_Cart
-Parameters: ```token, Id```<br>
+Parameters: ```token, Id(int)```<br>
 
 Removes product from shopping cart.<br>
 If cart doesnt exist                        = returns error message<br>
@@ -229,7 +229,7 @@ If cart is empty after product is removed   = delete cart<br>
 If product is removed and cart is not empty = Returns a confirmation message.<br>
 
 ## get_Purchase
-Parameters: ```token, purchase_id```<br>
+Parameters: ```token, purchase_id(int)```<br>
 Get purchase by purchase Id. <br>
 Users can only get their own purchases.<br>
 Admins can get any purchase by puchase id.<br>
