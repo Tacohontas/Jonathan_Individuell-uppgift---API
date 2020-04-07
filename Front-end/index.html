@@ -28,17 +28,17 @@
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
-        $(document).ready(() => {
+         $(document).ready(() => {
             $(".form").on("submit", (e) => {
                 e.preventDefault();
                 var data = $(e.target).serialize();
                 if ($(e.target).find('input[name="method"]:checked').val() === "get") {
                     $.get($(e.target).find('input[name="url"]').val(), data, (data) => {
-                        $("#serverResponse").val(data);
+                        $("#serverResponse").val(JSON.stringify(data));
                     });
                 } else {
                     $.post($(e.target).find('input[name="url"]').val(), data, (data) => {
-                        $("#serverResponse").val(data);
+                        $("#serverResponse").val(JSON.stringify(data));
                     });
                 }
             });
@@ -50,15 +50,18 @@
     <div id="container">
 
         <div id="left">
-                <h2>Registrera användare:</h2>
+            <h2>Registrera användare:</h2>
 
             <form class="form">
-                <input type="text" name="url" placeholder="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/users/add_User.php" /><br />
+                <input type="text" name="url" placeholder=""
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/users/add_User.php" /><br />
                 <input type="text" name="username" placeholder="username" /><br />
                 <input type="password" name="password" placeholder="password" /><br />
                 <input type="email" name="email" placeholder="email" /><br />
+                USER: <input type="radio" name="role_id" value="2" checked /> ADMIN: <input type="radio" name="role_id"
+                    value="1" /><br />
                 GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
-                    value="post" /><br />
+                    value="post" checked /><br />
 
                 <input type="submit" />
             </form>
@@ -68,77 +71,245 @@
             <h2>Logga in användare:</h2>
 
             <form class="form">
-                <input type="text" name="url" placeholder="http://" value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/users/login_User.php"/><br />
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/users/login_User.php" /><br />
                 <input type="text" name="username" placeholder="username" /><br />
                 <input type="password" name="password" placeholder="password" /><br />
                 GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
-                    value="post" /><br />
+                    value="post" checked /><br />
                 <input type="submit" />
             </form>
 
-        <hr />
+            <hr />
 
-        <h2>Lägg till post:</h2>
+            <h2>Lägg till Produkt</h2>
 
-        <form class="form">
-            <input type="text" name="url" placeholder="http://" /><br />
-            <input type="text" name="title" placeholder="title" /><br />
-            <input type="text" name="token" placeholder="token" /><br />
-            <textarea name="content" placeholder="content"></textarea><br />
-            GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
-                value="post" /><br />
-            <input type="submit" />
-        </form>
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/products/create_Product.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="text" name="name" placeholder="Product Name" /><br />
+                <input type="number" name="price" placeholder="Price" /><br />
+                <input type="text" name="brand" placeholder="Brand" /><br />
+                <input type="text" name="color" placeholder="Color" /><br />
 
-    <hr />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
 
-        <h2>Uppdatera post:</h2>
+            <hr />
 
-        <form class="form">
-            <input type="text" name="token" placeholder="token" /><br />
+            <h2>Uppdatera Produkt</h2>
 
-            <input type="text" name="url" placeholder="http://" value="http://192.168.64.2/api/posts/updatePost.php" /><br />
-            <input type="number" name="id" placeholder="id" /><br />
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/products/update_Product.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="number" name="id" placeholder="Id" /><br />
+                <input type="text" name="name" placeholder="Product Name" /><br />
+                <input type="number" name="price" placeholder="Price" /><br />
+                <input type="text" name="brand" placeholder="Brand" /><br />
+                <input type="text" name="color" placeholder="Color" /><br />
 
-            <input type="text" name="title" placeholder="title" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
 
-            <textarea name="content" placeholder="content"></textarea><br />
-            GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
-                value="post" /><br />
-            <input type="submit" />
-        </form>
+            <hr />
 
-    <hr />
+            <h2>Hämta specifika produkter</h2>
 
-    <h2>Hämta en post:</h2>
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/products/get_Product.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="text" name="column" placeholder="column" /><br />
+                <input type="text" name="value" placeholder="value" /><br />
 
-    <form class="form">
-        <input type="text" name="url" placeholder="http://" value="http://192.168.64.2/api/posts/getPost.php" /><br />
-        <input type="text" name="id" placeholder="id" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
 
-        GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
-            value="post" /><br />
-        <input type="submit" />
-    </form>
+            <hr />
 
-<hr />
+            <h2>Hämta alla produkter:</h2>
 
-    <h2>Hämta alla posts:</h2>
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/products/getAll_Products.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="number" name="limit" placeholder="product limit" /><br />
+                <input type="number" name="offset" placeholder="offset" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
 
-    <form class="form">
-        <input type="text" name="url" placeholder="http://" value="http://192.168.64.2/api/posts/getAllPosts.php" /><br />
-        <input type="text" name="token" placeholder="token" /><br />
-        GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
-            value="post" /><br />
-        <input type="submit" />
-    </form>
-</div>
-
+            <hr />
 
 
-    <div id="right">
-        <textarea id="serverResponse"></textarea>
-    </div>
+            <h2>Sortera produkter</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/products/sort_Products.php" /><br />
+                    <input type="text" name="token" placeholder="token" /><br />
+                    Order by:
+                <select name="column">
+                    <option value="Name">Product Name</option>
+                    <option value="Price">Price</option>
+                    <option value="Brand">Brand</option>
+                    <option value="Color">Color</option>
+                    <option value="Date_Created">Date Created</option>
+                    <option value="Last_Updated">Last Updated</option>
+                </select>
+                <select name="order">
+                    <option value="ASC">ASC</option>
+                    <option value="DESC">DESC</option>
+                </select><br />
+                <input type="number" name="limit" placeholder="product limit" /><br />
+                <input type="number" name="offset" placeholder="offset" /><br />
+
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Ta bort produkt:</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/products/delete_Product.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="number" name="Id" placeholder="Product Id" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Hämta varukorg</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/carts/get_Cart.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="number" name="Id" placeholder="Cart Id" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Hämta alla varukorgar</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/carts/getAll_Carts.php" /><br />
+                <input type="text" name="token" placeholder="admin token" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Töm varukorg</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/carts/empty_Cart.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="number" name="id" placeholder="cart id" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Lägg produkt i varukorg</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/carts/addTo_Cart.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="number" name="Id" placeholder="Product Id" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Ta bort produkt från varukorg</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/carts/removeFrom_Cart.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="number" name="Id" placeholder="Product Id" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Checkout</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/carts/checkout_Cart.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Get Purchase</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/purchases/get_Purchase.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                <input type="number" name="purchase_id" placeholder="Purchase id" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+            <h2>Get All Purchases</h2>
+
+            <form class="form">
+                <input type="text" name="url" placeholder="http://"
+                    value="http://192.168.64.2/Skola/Jonathan_Individuell%20uppgift%20-%20API/API/v1/purchases/getAll_Purchases.php" /><br />
+                <input type="text" name="token" placeholder="token" /><br />
+                GET: <input type="radio" name="method" value="get" checked /> POST: <input type="radio" name="method"
+                    value="post" checked /><br />
+                <input type="submit" />
+            </form>
+
+            <hr />
+
+        </div>
+
+
+
+        <div id="right">
+            <textarea id="serverResponse"></textarea>
+        </div>
     </div>
 
 </body>

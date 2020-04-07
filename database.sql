@@ -53,11 +53,12 @@ CREATE TABLE `Products`(
 CREATE TABLE `Carts`(
     `Id` INT NOT NULL AUTO_INCREMENT,
     `User_Id` INT NOT NULL,
-    `Total` INT NOT NULL DEFAULT 0,
     `Checkout_Done` BOOLEAN NOT NULL DEFAULT FALSE,
     `Date_Created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `Date_Updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(`Id`),
     FOREIGN KEY(`User_Id`) REFERENCES Users(`Id`)
+
 ) engine = innoDB;
 
 /* ProductsInCarts */
@@ -68,8 +69,11 @@ CREATE TABLE `ProductsInCarts`(
     `Products_Id` INT NOT NULL,
     `Date_Added` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(`Id`),
-    FOREIGN KEY(`Carts_Id`) REFERENCES Carts(`Id`),
     FOREIGN KEY(`Products_Id`) REFERENCES Products(`Id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    FOREIGN KEY(`Carts_Id`) REFERENCES Carts(`Id`)
+    ON DELETE CASCADE
 ) engine = innoDB;
 
 /* PURCHASES */ 
@@ -78,6 +82,7 @@ CREATE TABLE `Purchases`(
   `Id` INT NOT NULL AUTO_INCREMENT,
   `Carts_Id` INT NOT NULL,
   `Date_Checkout` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `Total` INT NOT NULL,
   PRIMARY KEY(`Id`),
   FOREIGN KEY(`Carts_Id`) REFERENCES Carts(`Id`)
 ) engine = innoDB;
@@ -97,7 +102,7 @@ CREATE TABLE `Tokens`(
     `Id` INT NOT NULL AUTO_INCREMENT,
     `Users_Id` INT NOT NULL,
     `Date_Created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `Date_Updated` DATETIME,
+    `Date_Updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `Token` TEXT,
     PRIMARY KEY(`Id`),
     FOREIGN KEY(`Users_Id`) REFERENCES Users(`Id`)
@@ -113,9 +118,17 @@ INSERT INTO Users(Username, Password, Email, Roles_Id) VALUE ("User", "5f4dcc3b5
 
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Aero Pro Drive", 2400, "Babolat", "Yellow");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pure Drive Team", 2100, "Babolat", "Blue");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pure Control", 2700, "Babolat", "Red");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pure Storm", 2500, "Babolat", "Orange");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pro Staff", 3100, "Wilson", "Orange");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pro Team", 2600, "Wilson", "Yellow");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Ncode N4", 2900, "Wilson", "Red");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Ncode N3", 2600, "Wilson", "Black");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Pro Tour", 2800, "Prince", "Black");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Rebel 20", 2800, "Prince", "Purple");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("O3 Silver", 2700, "Prince", "Silver");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("O3 Red", 2900, "Prince", "Red");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("MicroGEL Extreme Pro", 2600, "Head", "Black");
 INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Crossbow 10", 2900, "Head", "White");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Flexpoint 10", 2700, "Head", "Gray");
+INSERT INTO Products(Name, Price, Brand, Color) VALUES ("Protector", 2200, "Head", "Yellow");
