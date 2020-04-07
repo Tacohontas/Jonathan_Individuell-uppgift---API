@@ -48,9 +48,11 @@ Methods and functions: ```camelcase```.<br>
 Instances of a class and SQLqueries: ```snake_case``` and end with ```_handler``` example: ```$user_handler = new User```.<br>
 Parameters in functions and methods: ```camelCase``` and MUST end with ```_IN``` example: ```isUsernameTaken($username_IN)```.<br>
 
-Every other name should be in camelCase if nothing else is set.
+Every other name should be in ```camelCase``` if nothing else is set.
 
 ## End points v1
+
+Every end point is using POST method to collect data. It can easily be changed to GET if needed.
 
 ### Tokens
 Every end point except for ```login_User``` needs an active token to work.
@@ -82,6 +84,7 @@ User has to login again to get a new token.
 * **Will get added in v2**
 
 ## add_User
+Parameters: ```username, password, email, role_id(int)```<br>
 Insert user to DB if:
 
 - No field is empty
@@ -92,6 +95,7 @@ You're also able to set user roles based on table in DB.
 A message will be returned on success.
 
 ## login_User
+Parameters: ```username, password```<br>
 Login user to DB if:
 
 - No field is empty
@@ -100,6 +104,7 @@ Login user to DB if:
 A token will be created and then returned on success.
 
 ## create_Product
+Parameters: ```token, name, price(int), brand, color```<br>
 Create product and add it to DB if:
 
 - User is admin
@@ -111,6 +116,7 @@ Returns:
 - error messages on failed operations
 
 ## delete_Product
+Parameters: ```token, Id(int)```<br>
 Deletes product from DB (and from shopping carts) if:
 
 - User is admin
@@ -123,6 +129,7 @@ Returns:
 - Error message/s on failed operations
 
 ## get_Product
+Parameters: ```token, column, value```<br>
 Get product/s from DB based on a combination of column and value
 
 Column = which column to match with value<br>
@@ -132,7 +139,7 @@ Example:
 ```getProduct(Color, "Yellow")``` will return a product/s with color yellow. 
 
 ## getAll_Products
-
+Parameters: ```token, limit, offset```<br>
 Get all products!<br>
 You need to set an limit and offset for pagination causes.
 
@@ -141,7 +148,7 @@ Returns:
 - Error message on failed operations or faulty inputs.
 
 ## sort_Products
-
+Parameters: ```token, column, order, limit, offset```<br>
 Get & sort products!<br>
 You need to set an limit and offset for pagination causes.
 
@@ -150,6 +157,7 @@ Returns:
 - Error message on failed operations or faulty inputs.
 
 ## update_Product
+Parameters: ```token, id(int), name, price, brand, color```<br>
 Update product if:
 - product exist.
 - User is admin.
@@ -160,6 +168,7 @@ Returns:
 - error messages on failed operations.
 
 ## addTo_Cart
+Parameters: ```token, id(int)```<br>
 Add product to user's shopping cart if:
 
 - No field is empty
@@ -169,6 +178,7 @@ Will get A confirm message on success.<br>
 Error message/s on failed operations.
 
 ## checkout_Cart
+Parameters: ```token, id(int)```<br>
 Checkout cart and add to purchase table in DB if:
 
 - No field is empty
@@ -179,6 +189,7 @@ Will get an overview over purchase details on success.<br>
 Error message/s on failed operations
 
 ## empty_Cart
+Parameters: ```token, id(int)```<br>
 Empties the cart by cartId if you're admin, or your own cart if you're not admin.
 
 Requirements:
@@ -190,6 +201,7 @@ Returns
 - Error message/s on failed operations
 
 ## get_Cart
+Parameters: ```token, id(int)```<br>
 Get cart:<br>
 Admin can get any cart. Cart id is required<br>
 Regular users can only get their own cart by token. Not by Cart Id.
@@ -199,6 +211,7 @@ Returns
 - Error messages on failed operations
 
 ## getAll_Carts
+Parameters: ```token```<br>
 Get all active carts (not the finished ones) if:
 - Token is valid
 - User is admin
@@ -208,12 +221,15 @@ Returns
 - Error messages on failed operations
 
 ## removeFrom_Cart
+Parameters: ```token, Id```<br>
+
 Removes product from shopping cart.<br>
 If cart doesnt exist                        = returns error message<br>
 If cart is empty after product is removed   = delete cart<br>
 If product is removed and cart is not empty = Returns a confirmation message.<br>
 
 ## get_Purchase
+Parameters: ```token, purchase_id```<br>
 Get purchase by purchase Id. <br>
 Users can only get their own purchases.<br>
 Admins can get any purchase by puchase id.<br>
@@ -225,6 +241,7 @@ If purchase doesnt exist = return error message<br>
 If purchase exist        = return purchase
 
 ## getAll_Purchases
+Parameters: ```token```<br>
 Get all the purchases  <br>
 Users can only get their own purchases  <br>
 Admins can get any purchase by puchase id. <br> 
